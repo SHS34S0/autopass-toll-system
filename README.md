@@ -27,6 +27,6 @@ A core component of this project is its robust SQLite architecture, which offloa
 
 1. Clone the repository:
 ```bash
-git clone [https://github.com/SHS34S0/autopass-toll-system.git](https://github.com/SHS34S0/autopass-toll-system.git)
+git clone https://github.com/SHS34S0/autopass-toll-system.git
    cd autopass-toll-system 
 ```
