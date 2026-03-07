@@ -6,6 +6,8 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 import aiosqlite
 from werkzeug.security import generate_password_hash, check_password_hash
+from schemas import UserRegisterModel, UserLoginModel
+from pydantic import ValidationError
 
 import helpers as h
 
@@ -30,7 +32,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/")
+@app.get("/", tags=["home"])
 def render_page(request: Request):
 
     my_name = "Sergo"
@@ -40,35 +42,38 @@ def render_page(request: Request):
     )
 
 
-@app.get("/login")
+@app.get("/login", tags=["login"])
 def render_page_login(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
 
 
-@app.post("/login")
+@app.post("/login", tags=["login"])
 async def process_login(
     request: Request, email: str = Form(), password: str = Form(), db=Depends(get_db)
 ):
-    if not email or not password:
-        return {"error": "Email and password are required"}
-    print(email, password)
+
+    try:
+        user_data = UserLoginModel(email=email, password=password)
+    except ValidationError as e:
+        return {"error": "Validation error", "details": e.errors()}
+
     cursor = await db.execute(
-        "SELECT * FROM persons WHERE email = ?", (email.lower().strip(),)
+        "SELECT * FROM persons WHERE email = ?", (user_data.email.lower().strip(),)
     )
 
     row = await cursor.fetchall()
     # check if the email exists and if the password is correct
-    if len(row) != 1 or not check_password_hash(row[0][4], password):
+    if len(row) != 1 or not check_password_hash(row[0][4], user_data.password):
         return {"error": "Invalid email or password"}
     return {"message": "Login successful", "email": email}
 
 
-@app.get("/registrer")
+@app.get("/registrer", tags=["registrer"])
 def render_page_registrer(request: Request):
     return templates.TemplateResponse(request=request, name="registrer.html")
 
 
-@app.post("/registrer")
+@app.post("/registrer", tags=["registrer"])
 async def process_registrer(
     request: Request,
     first_name: str = Form(),
@@ -79,28 +84,34 @@ async def process_registrer(
     phone: str = Form(),
     db=Depends(get_db),
 ):
-    if not email or not password:
-        return {"error": "Email and password are required"}
-    if password != confirmation:
-        return {"error": "Passwords do not match"}
+    try:
+        # try to create a UserRegisterModel instance with the provided data
+        user_data = UserRegisterModel(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=password,
+            confirmation=confirmation,
+            phone=phone,
+        )
 
-    if len(password) < 8:
-        return {"error": "Password must be at least 8 characters long"}
+    except ValidationError as e:
+        return {"error": "Validation error", "details": e.errors()}
 
-    password_hash = generate_password_hash(password)
+    password_hash = generate_password_hash(user_data.password)
 
     await db.execute(
         "INSERT INTO persons (first_name, last_name, email, hash, phone) VALUES (?, ?, ?, ?, ?)",
         (
-            first_name.capitalize().strip(),
-            last_name.capitalize().strip(),
-            email.lower().strip(),
+            user_data.first_name,
+            user_data.last_name,
+            user_data.email,
             password_hash,
-            phone,
+            user_data.phone,
         ),
     )
     await db.commit()
-    return {"message": "User registered successfully", "email": email}
+    return {"message": "User registered successfully", "email": user_data.email}
 
 
 # if __name__ == "__main__":
