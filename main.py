@@ -4,15 +4,11 @@ from fastapi.staticfiles import (
 )  # this is used to serve static files like CSS, js, images, etc
 from fastapi.templating import Jinja2Templates
 import aiosqlite
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from schemas import UserRegisterModel, UserLoginModel
 from pydantic import ValidationError
 from contextlib import asynccontextmanager
-
-import jwt
 from fastapi.responses import RedirectResponse
-from datetime import datetime, timedelta, timezone
-import config
 import helpers as h
 
 
@@ -49,7 +45,9 @@ async def render_page(
             name = row[1]
 
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"username": name}
+        request=request,
+        name="index.html",
+        context={"username": name, "user_id": user_id},
     )
 
 
@@ -70,26 +68,10 @@ async def process_login(
         user_data = UserLoginModel(email=email, password=password)
     except ValidationError as e:
         return {"error": "Validation error", "details": e.errors()}
-
-    cursor = await db.execute(
-        "SELECT * FROM persons WHERE email = ?", (user_data.email.lower().strip(),)
-    )
-
-    row = await cursor.fetchall()
-    # check if the email exists and if the password is correct
-    if len(row) != 1 or not check_password_hash(row[0][4], user_data.password):
+    user_id = await h.check_user_id(user_data.email, user_data.password, db)
+    if not user_id:
         return {"error": "Invalid email or password"}
-    user_id: int = int(row[0][0])
-
-    payload = {
-        "user_id": user_id,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
-    }
-
-    token = jwt.encode(payload, config.SECRET_KEY, algorithm=config.ALGORITHM)
-    response = RedirectResponse(url="/", status_code=302)
-    response.set_cookie(key="access_token", value=token, httponly=True)
-    return response
+    return h.create_access_token(user_id)
 
 
 @app.get("/logout", tags=["login"])
@@ -118,6 +100,9 @@ async def process_register(
         phone: str = Form(),
         db=Depends(get_db),
 ):
+    # Перевірка чи такий вже існує по почті
+    if await h.user_exists(email, db):
+        return {"massage": "Email already exists!"}
     try:
         # try to create a UserRegisterModel instance with the provided data
         user_data = UserRegisterModel(
@@ -145,7 +130,11 @@ async def process_register(
         ),
     )
     await db.commit()
-    return RedirectResponse(url="/", status_code=303)
+    user_id = await h.check_user_id(user_data.email, user_data.password, db)
+
+    if not user_id:
+        return {"error": "Invalid email or password"}
+    return h.create_access_token(user_id)
 
 # if __name__ == "__main__":
 #     uvicorn.run("main:app", reload=True)
