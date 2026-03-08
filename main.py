@@ -35,7 +35,7 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", tags=["home"])
 async def render_page(
-        request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)
+    request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)
 ):
     name = "World!"
     if user_id:
@@ -60,9 +60,9 @@ def render_page_login(request: Request, user_id: int | None = Depends(h.get_user
 
 @app.post("/login", tags=["login"])
 async def process_login(
-        email: str = Form(),
-        password: str = Form(),
-        db=Depends(get_db),
+    email: str = Form(),
+    password: str = Form(),
+    db=Depends(get_db),
 ):
     try:
         user_data = UserLoginModel(email=email, password=password)
@@ -83,7 +83,7 @@ def logout():
 
 @app.get("/register", tags=["register"])
 def render_page_register(
-        request: Request, user_id: int | None = Depends(h.get_user_id)
+    request: Request, user_id: int | None = Depends(h.get_user_id)
 ):
     if user_id:
         return RedirectResponse(url="/", status_code=303)
@@ -92,13 +92,13 @@ def render_page_register(
 
 @app.post("/register", tags=["register"])
 async def process_register(
-        first_name: str = Form(),
-        last_name: str = Form(),
-        email: str = Form(),
-        password: str = Form(),
-        confirmation: str = Form(),
-        phone: str = Form(),
-        db=Depends(get_db),
+    first_name: str = Form(),
+    last_name: str = Form(),
+    email: str = Form(),
+    password: str = Form(),
+    confirmation: str = Form(),
+    phone: str = Form(),
+    db=Depends(get_db),
 ):
     # Перевірка чи такий вже існує по почті
     if await h.user_exists(email, db):
@@ -135,6 +135,7 @@ async def process_register(
     if not user_id:
         return {"error": "Invalid email or password"}
     return h.create_access_token(user_id)
+
 
 # if __name__ == "__main__":
 #     uvicorn.run("main:app", reload=True)
