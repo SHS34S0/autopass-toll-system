@@ -1,23 +1,28 @@
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.staticfiles import (
     StaticFiles,
-)  # this is used to serve static files like css, js, images, etc
+)  # this is used to serve static files like CSS, js, images, etc
 from fastapi.templating import Jinja2Templates
-import uvicorn
 import aiosqlite
 from werkzeug.security import generate_password_hash, check_password_hash
 from schemas import UserRegisterModel, UserLoginModel
 from pydantic import ValidationError
+from contextlib import asynccontextmanager
 
+import jwt
+from fastapi.responses import RedirectResponse
+from datetime import datetime, timedelta, timezone
+import config
 import helpers as h
 
 
-async def lifespan(app: FastAPI):
-    app.state.db = await aiosqlite.connect("database.db")
+@asynccontextmanager
+async def lifespan(fastapi_app: FastAPI):
+    fastapi_app.state.db = await aiosqlite.connect("database.db")
     # pause the execution of the lifespan function until the app is shutting down
     yield
     # stop the execution of the lifespan function and continue with the shutdown process
-    await app.state.db.close()
+    await fastapi_app.state.db.close()
 
 
 app = FastAPI(lifespan=lifespan)
@@ -33,25 +38,34 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/", tags=["home"])
-def render_page(request: Request):
-
-    my_name = "Sergo"
+async def render_page(
+        request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)
+):
+    name = "World!"
+    if user_id:
+        cursor = await db.execute("SELECT * FROM persons WHERE id = ?", (user_id,))
+        row = await cursor.fetchone()
+        if row:
+            name = row[1]
 
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"username": my_name}
+        request=request, name="index.html", context={"username": name}
     )
 
 
 @app.get("/login", tags=["login"])
-def render_page_login(request: Request):
+def render_page_login(request: Request, user_id: int | None = Depends(h.get_user_id)):
+    if user_id:
+        return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse(request=request, name="login.html")
 
 
 @app.post("/login", tags=["login"])
 async def process_login(
-    request: Request, email: str = Form(), password: str = Form(), db=Depends(get_db)
+        email: str = Form(),
+        password: str = Form(),
+        db=Depends(get_db),
 ):
-
     try:
         user_data = UserLoginModel(email=email, password=password)
     except ValidationError as e:
@@ -65,24 +79,44 @@ async def process_login(
     # check if the email exists and if the password is correct
     if len(row) != 1 or not check_password_hash(row[0][4], user_data.password):
         return {"error": "Invalid email or password"}
-    return {"message": "Login successful", "email": email}
+    user_id: int = int(row[0][0])
+
+    payload = {
+        "user_id": user_id,
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+    }
+
+    token = jwt.encode(payload, config.SECRET_KEY, algorithm=config.ALGORITHM)
+    response = RedirectResponse(url="/", status_code=302)
+    response.set_cookie(key="access_token", value=token, httponly=True)
+    return response
 
 
-@app.get("/registrer", tags=["registrer"])
-def render_page_registrer(request: Request):
-    return templates.TemplateResponse(request=request, name="registrer.html")
+@app.get("/logout", tags=["login"])
+def logout():
+    response = RedirectResponse(url="/login", status_code=303)
+    response.delete_cookie("access_token")
+    return response
 
 
-@app.post("/registrer", tags=["registrer"])
-async def process_registrer(
-    request: Request,
-    first_name: str = Form(),
-    last_name: str = Form(),
-    email: str = Form(),
-    password: str = Form(),
-    confirmation: str = Form(),
-    phone: str = Form(),
-    db=Depends(get_db),
+@app.get("/register", tags=["register"])
+def render_page_register(
+        request: Request, user_id: int | None = Depends(h.get_user_id)
+):
+    if user_id:
+        return RedirectResponse(url="/", status_code=303)
+    return templates.TemplateResponse(request=request, name="register.html")
+
+
+@app.post("/register", tags=["register"])
+async def process_register(
+        first_name: str = Form(),
+        last_name: str = Form(),
+        email: str = Form(),
+        password: str = Form(),
+        confirmation: str = Form(),
+        phone: str = Form(),
+        db=Depends(get_db),
 ):
     try:
         # try to create a UserRegisterModel instance with the provided data
@@ -111,8 +145,7 @@ async def process_registrer(
         ),
     )
     await db.commit()
-    return {"message": "User registered successfully", "email": user_data.email}
-
+    return RedirectResponse(url="/", status_code=303)
 
 # if __name__ == "__main__":
 #     uvicorn.run("main:app", reload=True)

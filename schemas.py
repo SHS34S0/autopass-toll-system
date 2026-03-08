@@ -35,15 +35,9 @@ class UserRegisterModel(BaseModel):
     def format_email(cls, value: str):
         return value.lower().strip()
 
-    @model_validator(mode="after")
-    def check_passwords_match(self):
-        if self.password != self.confirmation:
-            raise ValueError("Passwords do not match")
-        return self
-
 
 class UserLoginModel(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
-    
+
     model_config = ConfigDict(extra="forbid")
