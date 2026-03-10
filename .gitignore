@@ -3,4 +3,4 @@ __pycache__/
 .pytest_cache/
 database.db
 config.py
-.dea/
+.idea/

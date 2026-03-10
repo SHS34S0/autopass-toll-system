@@ -81,3 +81,16 @@ tbody tr:nth-of-type(odd) {
     background-color: rgb(179, 208, 255, 0.3)
 }
 
+.big-btn {
+    padding: 15px 32px;
+    border-radius: 14px;
+
+}
+
+.box_btn {
+    display: flex;
+    padding: 15px; /* Також додай відступи всередині, щоб текст не прилипав до рамки */
+    margin-bottom: 20px; /* Додай відступ між блоками */
+    justify-content: center;
+}
+

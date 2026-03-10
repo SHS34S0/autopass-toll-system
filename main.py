@@ -34,28 +34,44 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
+@app.get("/dashboard", tags=["dashboard"])
+async def dashboard(request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)):
+    if not user_id:
+        return RedirectResponse(url="/", status_code=303)
+    cursor = await db.execute("SELECT * FROM persons WHERE id = ?", (user_id,))
+    row = await cursor.fetchone()
+    if not row:
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html",
+            context={"error": msg.AuthMessages.AUTH_ERROR},
+        )
+    name = row[1]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={"username": name, "user_id": user_id},
+    )
+
+
 @app.get("/", tags=["home"])
 async def render_page(
-        request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)
+        request: Request, user_id: int | None = Depends(h.get_user_id)
 ):
-    name = "World!"
     if user_id:
-        cursor = await db.execute("SELECT * FROM persons WHERE id = ?", (user_id,))
-        row = await cursor.fetchone()
-        if row:
-            name = row[1]
+        return RedirectResponse(url="/dashboard", status_code=303)
 
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"username": name, "user_id": user_id},
     )
 
 
 @app.get("/login", tags=["login"])
 def render_page_login(request: Request, user_id: int | None = Depends(h.get_user_id)):
     if user_id:
-        return RedirectResponse(url="/", status_code=303)
+        return RedirectResponse(url="/dashboard", status_code=303)
     return templates.TemplateResponse(request=request, name="login.html")
 
 
@@ -97,7 +113,7 @@ def render_page_register(
         request: Request, user_id: int | None = Depends(h.get_user_id)
 ):
     if user_id:
-        return RedirectResponse(url="/", status_code=303)
+        return RedirectResponse(url="/dashboard", status_code=303)
     return templates.TemplateResponse(request=request, name="register.html")
 
 
@@ -157,8 +173,9 @@ async def process_register(request: Request,
     user_id = await h.check_user_id(user_data.email, user_data.password, db)
 
     if not user_id:
-        return {"error": msg.AuthMessages.INVALID_CREDENTIALS}
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html",
+            context={"error": msg.AuthMessages.AUTH_ERROR},
+        )
     return h.create_access_token(user_id)
-
-# if __name__ == "__main__":
-#     uvicorn.run("main:app", reload=True)

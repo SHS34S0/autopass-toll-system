@@ -1,6 +1,34 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <h1>Hello, {{ username }}!</h1>
-{% endblock %}
 
+    <div class="container mt-5">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <div>
+                    <h1>AutoPASS Simulation Smart Toll Solutions for Modern Roads</h1>
+                    <p><strong>Experience a seamless billing ecosystem. Register your fleet, monitor automated passages,
+                        and optimize costs with our eco-friendly fuel discount system.</strong></p>
+                    <small>This is a high-fidelity technical showcase simulating a real-world tolling infrastructure. It
+                        demonstrates full-stack integration between FastAPI, robust Pydantic data validation, and
+                        automated SQLite transactional logging.</small>
+
+                    <div class="box_btn">
+                        <a href="/register" class="btn btn-primary mx-3 big-btn">
+                            Register
+                        </a>
+                        <a href="/login" class="btn btn-primary mx-3 big-btn">
+                            Log In
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-7">
+                <img src="/static/autopass.avif" alt="AutoPASS" class="img-fluid rounded shadow m-5" width="2999"
+                     height="2316">
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
