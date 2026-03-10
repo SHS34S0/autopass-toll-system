@@ -1,30 +1,36 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="mt-5">
-    <form action="/register" method="post">
+    <div class="mt-5">
+        {% if error %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form action="/register" method="post">
 
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="first_name" placeholder="First Name" type="text">
-        </div>
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" name="first_name" placeholder="First Name" type="text">
+            </div>
 
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="last_name" placeholder="Last Name" type="text">
-        </div>
-        <div class="mb-5">
-            <input class="form-control mx-auto w-auto" name="phone" placeholder="Phone" type="text">
-        </div>
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="email" placeholder="Email"
-                type="email">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="confirmation" placeholder="Confirmation" type="password">
-        </div>
-        <button class="btn btn-primary mx-auto d-block" type="submit">Register</button>
-    </form>
-</div>
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" name="last_name" placeholder="Last Name" type="text">
+            </div>
+            <div class="mb-5">
+                <input class="form-control mx-auto w-auto" name="phone" placeholder="Phone" type="text">
+            </div>
+            <div class="mb-3">
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="email" placeholder="Email"
+                       type="email">
+            </div>
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
+            </div>
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" name="confirmation" placeholder="Confirmation"
+                       type="password">
+            </div>
+            <button class="btn btn-primary mx-auto d-block" type="submit">Register</button>
+        </form>
+    </div>
 {% endblock %}

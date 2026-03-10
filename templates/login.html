@@ -1,16 +1,21 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="mt-5">
-    <form action="/login" method="post">
-        <div class="mb-3">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="email" placeholder="Email"
-                type="email">
-        </div>
-        <div class="mb-3">
-            <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
-        </div>
-        <button class="btn btn-primary mx-auto d-block" type="submit">Log In</button>
-    </form>
-</div>
+    <div class="mt-5">
+        {% if error %}
+            <div style="background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">
+                {{ error }}
+            </div>
+        {% endif %}
+        <form action="/login" method="post">
+            <div class="mb-3">
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="email" placeholder="Email"
+                       type="email">
+            </div>
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" name="password" placeholder="Password" type="password">
+            </div>
+            <button class="btn btn-primary mx-auto d-block" type="submit">Log In</button>
+        </form>
+    </div>
 {% endblock %}

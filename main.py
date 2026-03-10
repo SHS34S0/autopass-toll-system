@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from contextlib import asynccontextmanager
 from fastapi.responses import RedirectResponse
 import helpers as h
+import messages as msg
 
 
 @asynccontextmanager
@@ -35,7 +36,7 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", tags=["home"])
 async def render_page(
-    request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)
+        request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)
 ):
     name = "World!"
     if user_id:
@@ -60,17 +61,27 @@ def render_page_login(request: Request, user_id: int | None = Depends(h.get_user
 
 @app.post("/login", tags=["login"])
 async def process_login(
-    email: str = Form(),
-    password: str = Form(),
-    db=Depends(get_db),
+        request: Request,
+        email: str = Form(),
+        password: str = Form(),
+        db=Depends(get_db),
 ):
     try:
         user_data = UserLoginModel(email=email, password=password)
-    except ValidationError as e:
-        return {"error": "Validation error", "details": e.errors()}
+    except ValidationError:
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html",
+            context={"error": msg.AuthMessages.INVALID_CREDENTIALS}
+        )
     user_id = await h.check_user_id(user_data.email, user_data.password, db)
     if not user_id:
-        return {"error": "Invalid email or password"}
+        return templates.TemplateResponse(
+            request=request,
+            name="login.html",
+            context={"error": msg.AuthMessages.INVALID_CREDENTIALS}
+        )
+
     return h.create_access_token(user_id)
 
 
@@ -83,7 +94,7 @@ def logout():
 
 @app.get("/register", tags=["register"])
 def render_page_register(
-    request: Request, user_id: int | None = Depends(h.get_user_id)
+        request: Request, user_id: int | None = Depends(h.get_user_id)
 ):
     if user_id:
         return RedirectResponse(url="/", status_code=303)
@@ -91,18 +102,24 @@ def render_page_register(
 
 
 @app.post("/register", tags=["register"])
-async def process_register(
-    first_name: str = Form(),
-    last_name: str = Form(),
-    email: str = Form(),
-    password: str = Form(),
-    confirmation: str = Form(),
-    phone: str = Form(),
-    db=Depends(get_db),
-):
-    # Перевірка чи такий вже існує по почті
+async def process_register(request: Request,
+                           first_name: str = Form(),
+                           last_name: str = Form(),
+                           email: str = Form(),
+                           password: str = Form(),
+                           confirmation: str = Form(),
+                           phone: str = Form(),
+                           db=Depends(get_db),
+                           ):
+    # check user exist
     if await h.user_exists(email, db):
-        return {"massage": "Email already exists!"}
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html",
+            context={
+                "error": msg.AuthMessages.EMAIL_EXISTS,
+            }
+        )
     try:
         # try to create a UserRegisterModel instance with the provided data
         user_data = UserRegisterModel(
@@ -114,8 +131,15 @@ async def process_register(
             phone=phone,
         )
 
-    except ValidationError as e:
-        return {"error": "Validation error", "details": e.errors()}
+    except ValidationError:
+
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html",
+            context={
+                "error": msg.AuthMessages.PASSWORD_MISMATCH,
+            }
+        )
 
     password_hash = generate_password_hash(user_data.password)
 
@@ -133,9 +157,8 @@ async def process_register(
     user_id = await h.check_user_id(user_data.email, user_data.password, db)
 
     if not user_id:
-        return {"error": "Invalid email or password"}
+        return {"error": msg.AuthMessages.INVALID_CREDENTIALS}
     return h.create_access_token(user_id)
-
 
 # if __name__ == "__main__":
 #     uvicorn.run("main:app", reload=True)
