@@ -2,33 +2,33 @@
 
 {% block content %}
 
-    <div class="container mt-5">
-        <div class="row align-items-center">
-            <div class="col-md-5">
-                <div>
-                    <h1>AutoPASS Simulation Smart Toll Solutions for Modern Roads</h1>
-                    <p><strong>Experience a seamless billing ecosystem. Register your fleet, monitor automated passages,
+<div class="container p-3">
+    <div class="row align-items-center">
+        <div class="col-md-5">
+            <div>
+                <h1>AutoPASS Simulation Smart Toll Solutions for Modern Roads</h1>
+                <p><strong>Experience a seamless billing ecosystem. Register your fleet, monitor automated passages,
                         and optimize costs with our eco-friendly fuel discount system.</strong></p>
-                    <small>This is a high-fidelity technical showcase simulating a real-world tolling infrastructure. It
-                        demonstrates full-stack integration between FastAPI, robust Pydantic data validation, and
-                        automated SQLite transactional logging.</small>
+                <small>This is a high-fidelity technical showcase simulating a real-world tolling infrastructure. It
+                    demonstrates full-stack integration between FastAPI, robust Pydantic data validation, and
+                    automated SQLite transactional logging.</small>
 
-                    <div class="box_btn">
-                        <a href="/register" class="btn btn-primary mx-3 big-btn">
-                            Register
-                        </a>
-                        <a href="/login" class="btn btn-primary mx-3 big-btn">
-                            Log In
-                        </a>
-                    </div>
+                <div class="d-grid gap-2 col-lg-8 mx-auto mt-4">
+                    <a href="/register" class="btn btn-autopass mx-3 big-btn">
+                        START SIMULATION (REGISTER)
+                    </a>
+                    <a href="/login" class="btn big-btn-login mx-3 big-btn">
+                        SIGN IN
+                    </a>
                 </div>
+                <small class="p-3">Simulated training project with full FastAPI, Pydantic, and SQLite transactional logging.</small>
+            </div>
 
-            </div>
-            <div class="col-md-7">
-                <img src="/static/autopass.avif" alt="AutoPASS" class="img-fluid rounded shadow m-5" width="2999"
-                     height="2316">
-            </div>
+        </div>
+        <div class="col-md-7 p-5">
+            <img src="/static/autopass.avif" alt="AutoPASS" class="img-fluid rounded shadow" width="2999" height="2316">
         </div>
     </div>
+</div>
 
 {% endblock %}

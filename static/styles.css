@@ -1,5 +1,4 @@
 body {
-    background-color: #fff;
     color: #212529;
     font-size: 1rem;
     font-weight: 400;
@@ -15,6 +14,40 @@ body {
     padding-right: 15px;
     text-align: center;
     width: 90%;
+    border-radius: 2rem;
+    background-color:#F8FAFC;
+}
+
+.container-dashboard {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    text-align: center;
+    width: 33%;
+    border-radius: 2rem;
+    background-color:#F8FAFC;
+}
+
+.container-info {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    text-align: center;
+    width: 33%;
+    border-radius: 2rem;
+    background-color:#F8FAFC;
+}
+.auth_container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    text-align: center;
+    width: 50%;
+    border-radius: 2rem;
+    background-color:#F8FAFC;
 }
 
 .header {
@@ -84,13 +117,52 @@ tbody tr:nth-of-type(odd) {
 .big-btn {
     padding: 15px 32px;
     border-radius: 14px;
+    border: 2px solid #14416a;
 
 }
 
-.box_btn {
-    display: flex;
-    padding: 15px; /* Також додай відступи всередині, щоб текст не прилипав до рамки */
-    margin-bottom: 20px; /* Додай відступ між блоками */
-    justify-content: center;
+.bg-overlay {
+    min-height: 100vh; 
+    background: linear-gradient(rgba(20, 65, 106, 0.8), rgba(20, 65, 106, 0.8)), 
+                url('/static/autopass.avif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
+.aut-btn {
+    padding: 8px 26px;
+    border-radius: 10px;
+    border: 1px solid #ffffff;
+    display: inline-block; /* Щоб відступи працювали на посиланнях */
+    margin-bottom: 10px;   /* Створює вертикальну відстань між кнопками */
+    text-decoration: none; /* Прибирає підкреслення, якщо це посилання */
+    color: white;
+    min-width: 130px;    /* Однаковий розмір для обох кнопок */
+    text-align: center;
+    
+}
+
+
+.btn-autopass {
+    background-color: #144771;
+    border-color: #144771;
+    color: white;
+}
+.btn-autopass:hover {
+    background-color: #0d2e4a;
+    border-color: #0d2e4a;
+    color: white;
+}
+
+
+.big-btn-login {
+    background-color: #ffffff;
+    border-color: #144771;
+    color: #144771;
+}
+.big-btn-login:hover {
+    background-color: #144771;
+    border-color: #0d2e4a;
+    color: white;
+}
