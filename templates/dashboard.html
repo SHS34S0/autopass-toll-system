@@ -1,24 +1,85 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<div class="row align-items">
+    <div class="container-dashboard">
+        <div class="info-block">
+            <p>ACTIVE VEHICLES</p>
+            <h2>2</h2>
+        </div>
 
-<div class="row align-items-center">
-    <div class="col-4 container-dashboard p-3">
-        <h3>Hello, {{ username }}!</h3>
+        <div class="icon-block">
+            <span class="material-symbols-outlined">directions_car</span>
+        </div>
     </div>
-    <div class="col-4 container-dashboard p-3">
-        <h3>Hello, {{ username }}!</h3>
+
+
+
+    <div class="container-dashboard">
+        <div class="info-block">
+            <p>TOTAL COST THIS MONTH</p>
+            <h2>{{ username }} NOK</h2>
+        </div>
+
+        <div class="icon-block">
+            <span class="material-symbols-outlined">finance_mode</span>
+        </div>
     </div>
-    <div class="col-4 container-dashboard p-3">
-        <h3>Hello, {{ username }}!</h3>
+
+
+
+
+    <div class="container-dashboard">
+        <div class="info-block">
+            <p>ECO-SAVING BONUS</p>
+            <h2>{{ username }} NOK</h2>
+        </div>
+
+        <div class="eco-icon-block">
+            <span class="material-symbols-outlined">eco</span>
+        </div>
     </div>
+
 </div>
-<div class="row align-items-center m-3">
-    <div class="col-6 container-info p-3">
-        <h3>Hello, {{ username }}!</h3>
+<div class="row align-items mt-2">
+    <div class="container-info">
+        <div class="info-block">
+            <p><strong>MY VEHICLES</strong> (ACTIVE AGREEMENTS)</p>
+
+            <div class="container-cars">
+                <!-- number -->
+                <div class="car_number">
+                    <div class="container-car-number">
+                        number
+                    </div>
+                    
+                </div>
+
+                <!-- fuel -->
+                <div class="fuel-tupe">
+                    <div class="icon-fuel">
+                        <span class="material-symbols-outlined">ev_station</span>
+                    </div>
+                    <div class="fuel-text">
+                        FUEL TYPE
+                    </div>
+                </div>
+
+                <!-- view -->
+                <div class="view-trips m-3">
+                    <div class="btn btn-autopass big-btn">VIEW TRIPS</div>
+                </div>
+
+            </div>
+            <a href="/add_car" class="btn btn-autopass mt-3 big-btn">+ ADD NEW VEHICLE</a>
+        </div>
     </div>
-    <div class="col-6 container-info p-3">
-        <h3>Hello, {{ username }}!</h3>
+    <div class="container-info">
+        <div class="info-block">
+            <p><strong>RECENT TOLL PASSGES</strong> (LATEST ACTIVITY)</p>
+
+
+        </div>
     </div>
 </div>
 

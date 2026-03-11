@@ -21,23 +21,54 @@ body {
 .container-dashboard {
     margin-left: auto;
     margin-right: auto;
-    padding-left: 15px;
-    padding-right: 15px;
-    text-align: center;
+    text-align: left;
     width: 33%;
-    border-radius: 2rem;
+    border-radius: 7px;
     background-color:#F8FAFC;
+    display: flex;
+    overflow: hidden;
+    padding: 0;
 }
 
+.info-block {
+    background-color: #F8FAFC;
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.icon-block {
+    display: flex;
+    background-color: #dbebfc;
+    width: 25%;
+    justify-content: center;
+    align-items: center;
+}
+.icon-block span {
+    color: #1a4b8c;
+    font-size: 36px;
+}
+.eco-icon-block {
+    display: flex;
+    background-color: #daf3da;
+    width: 25%;
+    justify-content: center;
+    align-items: center;
+}
+
+.eco-icon-block span {
+    color: #417543;
+    font-size: 36;
+}
 .container-info {
     margin-left: auto;
     margin-right: auto;
-    padding-left: 15px;
-    padding-right: 15px;
-    text-align: center;
-    width: 33%;
-    border-radius: 2rem;
+    text-align: left;
+    width: 49.5%;
+    border-radius: 7px;
     background-color:#F8FAFC;
+    display: flex;
+    overflow: hidden;
+    padding: 0;
 }
 .auth_container {
     margin-left: auto;
@@ -50,13 +81,91 @@ body {
     background-color:#F8FAFC;
 }
 
-.header {
+
+.container-cars {
+    text-align: left;
+    background-color: #eceeef;
+    border-radius: 7px;
+    display: flex;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid #4c545a;
+}
+
+.container-car-number {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    width: 90%;
+    border-radius: 7px;
+    background-color:#F8FAFC;
+    display: flex;
+    overflow: hidden;
+    padding: 0;
+}
+/* .info-cars {
+    background-color: #F8FAFC;
+    flex-grow: 1;
+    padding: 20px;
+} */
+
+.view-trips {
+    display: flex;
+    width: 25%;
+    justify-content: center;
+    align-items: center;
+}
+
+.car_number {
+    display: flex;
+    width: 50%;
+    justify-content: center;
+    align-items: center;
+}
+
+.fuel-tupe {
+    display: flex;
+    /* потім прибрати фот */
+    background-color: #144771;
+    width: 25%;
+    justify-content: center;
+    align-items: center;
+}
+.fuel-tupe span {
+    color: #1a4b8c;
+    font-size: 36px;
+}
+.icon-fuel {
+    display: flex;
+    width: 25%;
+    justify-content: center;
+    align-items: center;
+}
+.icon-fuel span {
+    color: #1E293B;
+    font-size: 36px;
+}
+.fuel-text {
+    display: flex;
+    width: 50%;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+
+
+
+
+
+/* .header {
     background-color: #477bff;
     color: #fff;
     margin-bottom: 2rem;
     padding: 2rem 1rem;
     text-align: center;
-}
+} */
 
 .section {
     padding-bottom: 1rem;
