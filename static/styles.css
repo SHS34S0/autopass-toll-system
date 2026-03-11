@@ -92,22 +92,6 @@ body {
     border: 1px solid #4c545a;
 }
 
-.container-car-number {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: left;
-    width: 90%;
-    border-radius: 7px;
-    background-color:#F8FAFC;
-    display: flex;
-    overflow: hidden;
-    padding: 0;
-}
-/* .info-cars {
-    background-color: #F8FAFC;
-    flex-grow: 1;
-    padding: 20px;
-} */
 
 .view-trips {
     display: flex;
@@ -121,12 +105,12 @@ body {
     width: 50%;
     justify-content: center;
     align-items: center;
+    
 }
 
 .fuel-tupe {
     display: flex;
     /* потім прибрати фот */
-    background-color: #144771;
     width: 25%;
     justify-content: center;
     align-items: center;
@@ -153,12 +137,49 @@ body {
 }
 
 
+.icon-block {
+    display: flex;
+    background-color: #dbebfc;
+    width: 25%;
+    justify-content: center;
+    align-items: center;
+}
+.icon-fuel span {
+    color: #1E293B;
+    font-size: 36px;
+}
 
 
+.plate-frame {
+    color: #ffffff;
+    width: 90%;
+    border: 2px solid #000;
+    display: flex;
+    overflow: hidden;
+    border-radius: 10px;
+    align-items: stretch;
 
+}
 
+.plate-blue {
+    width: 45px;
+    flex-direction: column;
+    background-color: #003399;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    justify-content: space-between;
+    display: flex;
 
-
+}
+.plate-number {
+    flex-grow: 1;
+    color: #1E293B;
+    font-weight: bold;
+        font-size: 35px;
+    letter-spacing: 2px;
+    display: flex; justify-content: center; align-items: center;
+}
 /* .header {
     background-color: #477bff;
     color: #fff;
@@ -225,7 +246,7 @@ tbody tr:nth-of-type(odd) {
 
 .big-btn {
     padding: 15px 32px;
-    border-radius: 14px;
+    border-radius: 12px;
     border: 2px solid #14416a;
 
 }
@@ -272,6 +293,18 @@ tbody tr:nth-of-type(odd) {
 }
 .big-btn-login:hover {
     background-color: #144771;
+    border-color: #0d2e4a;
+    color: white;
+}
+
+
+.btn-view-trips {
+    background-color: dbebfc;
+    border-color: #144771;
+    color: #144771;
+}
+.btn-view-trips:hover {
+    background-color: #0d2e4a;
     border-color: #0d2e4a;
     color: white;
 }
