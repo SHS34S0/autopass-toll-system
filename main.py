@@ -5,7 +5,7 @@ from fastapi.staticfiles import (
 from fastapi.templating import Jinja2Templates
 import aiosqlite
 from werkzeug.security import generate_password_hash
-from schemas import UserRegisterModel, UserLoginModel
+from schemas import CarAddModel, UserRegisterModel, UserLoginModel
 from pydantic import ValidationError
 from contextlib import asynccontextmanager
 from fastapi.responses import RedirectResponse
@@ -34,8 +34,46 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
+@app.get("/add_car", tags=["add_car"])
+async def add_car(
+    request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
+):
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=303)
+    return templates.TemplateResponse(
+        request=request, name="add_car.html", context={"user_id": user_id}
+    )
+
+
+@app.post("/add_car", tags=["add_car"])
+async def process_add_car(
+    request: Request,
+    car_number: str = Form(),
+    model: str = Form(),
+    fuel_type: str = Form(),
+    user_id: int = Depends(h.get_user_id),
+    db=Depends(get_db),
+):
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=303)
+
+    try:
+        car_data = CarAddModel(car_number=car_number, model=model, fuel_type=fuel_type)
+    except ValidationError:
+        return templates.TemplateResponse(
+            request=request,
+            name="add_car.html",
+            context={"error": msg.CarMessages.INVALID_CAR_NUMBER},
+        )
+    print(car_data)
+
+    return RedirectResponse(url="/dashboard", status_code=303)
+
+
 @app.get("/dashboard", tags=["dashboard"])
-async def dashboard(request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)):
+async def dashboard(
+    request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
+):
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
     cursor = await db.execute("SELECT * FROM persons WHERE id = ?", (user_id,))
@@ -56,9 +94,7 @@ async def dashboard(request: Request, user_id: int = Depends(h.get_user_id), db=
 
 
 @app.get("/", tags=["home"])
-async def render_page(
-        request: Request, user_id: int | None = Depends(h.get_user_id)
-):
+async def render_page(request: Request, user_id: int | None = Depends(h.get_user_id)):
     if user_id:
         return RedirectResponse(url="/dashboard", status_code=303)
 
@@ -77,10 +113,10 @@ def render_page_login(request: Request, user_id: int | None = Depends(h.get_user
 
 @app.post("/login", tags=["login"])
 async def process_login(
-        request: Request,
-        email: str = Form(),
-        password: str = Form(),
-        db=Depends(get_db),
+    request: Request,
+    email: str = Form(),
+    password: str = Form(),
+    db=Depends(get_db),
 ):
     try:
         user_data = UserLoginModel(email=email, password=password)
@@ -88,14 +124,14 @@ async def process_login(
         return templates.TemplateResponse(
             request=request,
             name="login.html",
-            context={"error": msg.AuthMessages.INVALID_CREDENTIALS}
+            context={"error": msg.AuthMessages.INVALID_CREDENTIALS},
         )
     user_id = await h.check_user_id(user_data.email, user_data.password, db)
     if not user_id:
         return templates.TemplateResponse(
             request=request,
             name="login.html",
-            context={"error": msg.AuthMessages.INVALID_CREDENTIALS}
+            context={"error": msg.AuthMessages.INVALID_CREDENTIALS},
         )
 
     return h.create_access_token(user_id)
@@ -110,7 +146,7 @@ def logout():
 
 @app.get("/register", tags=["register"])
 def render_page_register(
-        request: Request, user_id: int | None = Depends(h.get_user_id)
+    request: Request, user_id: int | None = Depends(h.get_user_id)
 ):
     if user_id:
         return RedirectResponse(url="/dashboard", status_code=303)
@@ -118,15 +154,16 @@ def render_page_register(
 
 
 @app.post("/register", tags=["register"])
-async def process_register(request: Request,
-                           first_name: str = Form(),
-                           last_name: str = Form(),
-                           email: str = Form(),
-                           password: str = Form(),
-                           confirmation: str = Form(),
-                           phone: str = Form(),
-                           db=Depends(get_db),
-                           ):
+async def process_register(
+    request: Request,
+    first_name: str = Form(),
+    last_name: str = Form(),
+    email: str = Form(),
+    password: str = Form(),
+    confirmation: str = Form(),
+    phone: str = Form(),
+    db=Depends(get_db),
+):
     # check user exist
     if await h.user_exists(email, db):
         return templates.TemplateResponse(
@@ -134,7 +171,7 @@ async def process_register(request: Request,
             name="register.html",
             context={
                 "error": msg.AuthMessages.EMAIL_EXISTS,
-            }
+            },
         )
     try:
         # try to create a UserRegisterModel instance with the provided data
@@ -154,7 +191,7 @@ async def process_register(request: Request,
             name="register.html",
             context={
                 "error": msg.AuthMessages.PASSWORD_MISMATCH,
-            }
+            },
         )
 
     password_hash = generate_password_hash(user_data.password)
