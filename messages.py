@@ -4,6 +4,7 @@ class AuthMessages:
     EMAIL_EXISTS = "This email address is already in use."
     AUTH_ERROR = "Authentication error. Please log in again."
 
+
 class CarMessages:
+    ERROR = "Data entry error when adding a vehicle"
     INVALID_CAR_NUMBER = "Invalid car number format. Expected format: 'EL 12345'."
-    CAR_ADDED_SUCCESSFULLY = "Car added successfully."

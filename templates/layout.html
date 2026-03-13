@@ -11,6 +11,31 @@
     <link href="/static/styles.css" rel="stylesheet">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            let fuel = document.querySelectorAll(".fuel-selector");
+
+            for (let i = 0; i < fuel.length; i++) {
+                fuel[i].addEventListener("click", function () {
+
+                    let value = this.querySelector("input").value;
+
+                    let names = {
+                        electric: "Electric Vehicle discount 50%",
+                        hybrid: "Hybrid Vehicle discount 30%",
+                        gasoline: "Gasoline Car discount 20%",
+                        diesel: "Diesel Car discount 20%"
+                    };
+
+                    document.querySelector(".information").innerHTML = names[value];
+
+                });
+            }
+
+        });
+    </script>
 </head>
 
 <body>

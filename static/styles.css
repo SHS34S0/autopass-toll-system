@@ -308,3 +308,25 @@ tbody tr:nth-of-type(odd) {
     border-color: #0d2e4a;
     color: white;
 }
+
+
+/* Ховаємо стандартний кружок радіокнопки */
+.fuel-selector input[type="radio"]:checked + label {
+    background-color: #d1e7dd; /* Світло-зелений як на фото */
+    border-color: #a3cfbb;
+    color: #0f5132;
+}
+
+#electric:checked + label, 
+#hybrid:checked + label {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+    border-color: #a3cfbb !important;
+}
+
+#gasoline:checked + label, 
+#diesel:checked + label {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+    border-color: #212529 !important;
+}

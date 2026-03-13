@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+{% if error %}
+<div
+    style="background-color: #f8d7da; color: #721c24; padding: 10px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">
+    {{ error }}
+</div>
+{% endif %}
+
+
+
+
+<div class="row align-items">
+
+    <form action="/add_vehicle" method="post" class="bg-white p-5 shadow-sm rounded-3">
+        <div class="d-flex justify-content-start">
+            <h3><strong>+</strong> ADD NEW VEHICLE AGREEMENT</h3>
+        </div>
+        <h6 class="text-uppercase fw-bold mt-4" style="letter-spacing: 1px;">Step 1: Vehicle Information</h6>
+
+        <div class="d-flex mt-3 gap-3">
+            <div class="flex-fill">
+                <label class="fw-bold small">LICENSE PLATE NUMBER</label>
+                <div class="d-flex align-items-center gap-2">
+                    <input required name="car_number" class="form-control" placeholder="EL 12345">
+                </div>
+            </div>
+
+            <div class="flex-fill">
+                <label class="fw-bold small">VEHICLE MAKE</label>
+                <input required name="make" class="form-control" placeholder="e.g., Tesla, VW">
+            </div>
+
+            <div class="flex-fill">
+                <label class="fw-bold small">VEHICLE MODEL</label>
+                <input required name="model" class="form-control" placeholder="e.g., Model 3, ID.4">
+            </div>
+        </div>
+
+        <h6 class="text-uppercase fw-bold mt-4" style="letter-spacing: 1px;">Step 2: Fuel Type & Agreement</h6>
+        <div class="d-flex gap-3 mt-3">
+            <div class="fuel-selector">
+                <input type="radio" name="fuel_type" value="electric" id="electric" class="d-none">
+                <label for="electric" class="btn btn-outline-success d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">electric_bolt</span> ELECTRIC
+                </label>
+            </div>
+
+            <div class="fuel-selector">
+                <input type="radio" name="fuel_type" value="hybrid" id="hybrid" class="d-none">
+                <label for="hybrid" class="btn btn-outline-success d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">electric_car</span> HYBRID
+                </label>
+            </div>
+
+            <div class="fuel-selector">
+                <input type="radio" name="fuel_type" value="gasoline" id="gasoline" class="d-none">
+                <label for="gasoline" class="btn btn-outline-dark d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">local_gas_station</span> GASOLINE
+                </label>
+            </div>
+
+            <div class="fuel-selector">
+                <input type="radio" name="fuel_type" value="diesel" id="diesel" class="d-none" checked>
+                <label for="diesel" class="btn btn-outline-dark d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined">local_gas_station</span> DIESEL
+                </label>
+            </div>
+        </div>
+
+        <p class="information mt-3">Default Diesel discount 20%</p>
+
+
+        <div class="mt-4">
+            <p class="fw-bold mb-0">AGREEMENT CONFIRMATION</p>
+            <p class="text-muted small">(transactional logging with full FastAPI, Pydantic, SQLite)</p>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-autopass py-2 px-4 fw-bold" type="submit">+ ADD VEHICLE</button>
+            <a href="/dashboard" class="btn btn-light py-2 px-4 fw-bold text-secondary">CANCEL</a>
+        </div>
+
+    </form>
+</div>
+
+
+
+{% endblock %}

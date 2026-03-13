@@ -9,13 +9,21 @@ from schemas import CarAddModel, UserRegisterModel, UserLoginModel
 from pydantic import ValidationError
 from contextlib import asynccontextmanager
 from fastapi.responses import RedirectResponse
+import os
 import helpers as h
 import messages as msg
 
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
+    file_exists = os.path.exists("database.db")
     fastapi_app.state.db = await aiosqlite.connect("database.db")
+
+    if not file_exists:
+        with open("schema.sql", "r") as f:
+            schema = f.read()
+            await fastapi_app.state.db.executescript(schema)
+            await fastapi_app.state.db.commit()
     # pause the execution of the lifespan function until the app is shutting down
     yield
     # stop the execution of the lifespan function and continue with the shutdown process
@@ -34,21 +42,22 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/add_car", tags=["add_car"])
+@app.get("/add_vehicle", tags=["add_vehicle"])
 async def add_car(
     request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
 ):
     if not user_id:
         return RedirectResponse(url="/login", status_code=303)
     return templates.TemplateResponse(
-        request=request, name="add_car.html", context={"user_id": user_id}
+        request=request, name="add_vehicle.html", context={"user_id": user_id}
     )
 
 
-@app.post("/add_car", tags=["add_car"])
+@app.post("/add_vehicle", tags=["add_vehicle"])
 async def process_add_car(
     request: Request,
     car_number: str = Form(),
+    make: str = Form(),
     model: str = Form(),
     fuel_type: str = Form(),
     user_id: int = Depends(h.get_user_id),
@@ -58,12 +67,14 @@ async def process_add_car(
         return RedirectResponse(url="/login", status_code=303)
 
     try:
-        car_data = CarAddModel(car_number=car_number, model=model, fuel_type=fuel_type)
+        car_data = CarAddModel(
+            car_number=car_number, make=make, model=model, fuel_type=fuel_type
+        )
     except ValidationError:
         return templates.TemplateResponse(
             request=request,
-            name="add_car.html",
-            context={"error": msg.CarMessages.INVALID_CAR_NUMBER},
+            name="add_vehicle.html",
+            context={"error": msg.CarMessages.ERROR},
         )
     print(car_data)
 

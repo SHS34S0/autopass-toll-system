@@ -42,9 +42,11 @@ class UserLoginModel(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+
 class CarAddModel(BaseModel):
     car_number: str = Field(pattern=r"^[A-Z]{2}\s?\d{1,5}$")
+    make: str = Field(min_length=2, max_length=128)
     model: str = Field(min_length=2, max_length=128)
     fuel_type: str = Field(min_length=2, max_length=128)
-    
+
     model_config = ConfigDict(extra="forbid")
