@@ -5,3 +5,4 @@ database.db
 config.py
 .idea/
 test.py
+queries.sql

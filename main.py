@@ -12,18 +12,22 @@ from fastapi.responses import RedirectResponse
 import os
 import helpers as h
 import messages as msg
+import random
 
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
-    file_exists = os.path.exists("database.db")
-    fastapi_app.state.db = await aiosqlite.connect("database.db")
+    file_exists = os.path.exists("db/database.db")
+    fastapi_app.state.db = await aiosqlite.connect("db/database.db")
 
     if not file_exists:
-        with open("schema.sql", "r") as f:
-            schema = f.read()
-            await fastapi_app.state.db.executescript(schema)
-            await fastapi_app.state.db.commit()
+        with open("db/schema.sql", "r") as f:
+            with open("db/insert_toll_stations.sql", "r") as s:
+                schema = f.read()
+                station = s.read()
+                await fastapi_app.state.db.executescript(schema)
+                await fastapi_app.state.db.executescript(station)
+                await fastapi_app.state.db.commit()
     # pause the execution of the lifespan function until the app is shutting down
     yield
     # stop the execution of the lifespan function and continue with the shutdown process
@@ -76,8 +80,32 @@ async def process_add_car(
             name="add_vehicle.html",
             context={"error": msg.CarMessages.ERROR},
         )
-    print(car_data)
+    if len(car_number) != 8:
+        car_number = car_number[:2] + " " + car_number[2:]
 
+    fuel_type = h.fuel_type_to_id(fuel_type)
+    # Transaction
+    try:
+        await db.execute("BEGIN TRANSACTION")
+        await db.execute(
+            "INSERT INTO vehicles (car_num, fuel_type) VALUES (?, ?)",
+            (car_number, fuel_type),
+        )
+        await db.execute(
+            "INSERT INTO auto_pass (person_id, car_num) VALUES (?, ?)",
+            (user_id, car_number),
+        )
+        await db.execute("COMMIT")
+    except Exception as e:
+        await db.execute("ROLLBACK")
+        # logging
+        return templates.TemplateResponse(
+            request=request,
+            name="add_vehicle.html",
+            context={"error": msg.CarMessages.PLATE_EXISTS},
+        )
+    
+    await h.generate_fake_passages(db, car_number)
     return RedirectResponse(url="/dashboard", status_code=303)
 
 

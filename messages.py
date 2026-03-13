@@ -6,5 +6,6 @@ class AuthMessages:
 
 
 class CarMessages:
-    ERROR = "Data entry error when adding a vehicle"
+    ERROR = "There was a data entry error when adding the vehicle"
+    PLATE_EXISTS = "A vehicle with this plate number already exists."
     INVALID_CAR_NUMBER = "Invalid car number format. Expected format: 'EL 12345'."

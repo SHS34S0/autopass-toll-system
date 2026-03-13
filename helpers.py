@@ -4,11 +4,14 @@ from werkzeug.security import check_password_hash
 import config
 from datetime import datetime, timedelta, timezone
 from fastapi.responses import RedirectResponse
+import random
+from datetime import datetime, timedelta
 
 
 async def check_user_id(email: str, password: str, db):
     cursor = await db.execute(
-        "SELECT * FROM persons WHERE email = ?", (email.lower().strip(),))
+        "SELECT * FROM persons WHERE email = ?", (email.lower().strip(),)
+    )
 
     row = await cursor.fetchall()
     # check if the email exists and if the password is correct
@@ -48,3 +51,43 @@ def get_user_id(request: Request):
         return payload.get("user_id")
     except jwt.InvalidTokenError:
         return None
+
+
+def fuel_type_to_id(fuel_type: str):
+    fuel_types = {"gasoline": 1, "diesel": 1, "hybrid": 2, "electric": 3}
+    return fuel_types.get(fuel_type)
+
+
+import random
+from datetime import datetime, timedelta
+
+
+def get_random_date_in_past(days=30):
+    # Обчислюємо максимальний відступ у секундах (30 днів * 24г * 60хв * 60с)
+    max_seconds = days * 24 * 60 * 60
+    random_seconds = random.randint(0, max_seconds)
+
+    # Віднімаємо цей час від "зараз"
+    return datetime.now() - timedelta(seconds=random_seconds)
+
+
+def get_random_date_in_past(days=30):
+    max_seconds = days * 24 * 60 * 60
+    random_seconds = random.randint(0, max_seconds)
+    return datetime.now().replace(microsecond=0) - timedelta(seconds=random_seconds)
+
+async def generate_fake_passages(db, car_number):
+    try:
+        passages = random.randint(5, 20)
+
+        for i in range(passages):
+            await db.execute(
+                "INSERT INTO passages (car_num, station_id, passed_at) VALUES (?, ?, ?)",
+                (car_number, random.randint(1, 10), get_random_date_in_past(30)),
+            )
+        await db.commit()
+
+    except Exception as e:
+        #logging
+        return False
+    return True

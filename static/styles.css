@@ -312,7 +312,7 @@ tbody tr:nth-of-type(odd) {
 
 /* Ховаємо стандартний кружок радіокнопки */
 .fuel-selector input[type="radio"]:checked + label {
-    background-color: #d1e7dd; /* Світло-зелений як на фото */
+    background-color: #d1e7dd;
     border-color: #a3cfbb;
     color: #0f5132;
 }
