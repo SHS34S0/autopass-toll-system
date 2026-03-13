@@ -76,6 +76,7 @@ def get_random_date_in_past(days=30):
     random_seconds = random.randint(0, max_seconds)
     return datetime.now().replace(microsecond=0) - timedelta(seconds=random_seconds)
 
+
 async def generate_fake_passages(db, car_number):
     try:
         passages = random.randint(5, 20)
@@ -88,6 +89,26 @@ async def generate_fake_passages(db, car_number):
         await db.commit()
 
     except Exception as e:
-        #logging
+        # logging
         return False
     return True
+
+
+async def active_vehicles(db, user_id):
+    cursor = await db.execute(
+        """
+    SELECT DISTINCT auto_pass.car_num, vehicles.fuel_type
+    FROM auto_pass
+    JOIN vehicles ON auto_pass.car_num = vehicles.car_num
+    WHERE auto_pass.person_id = ?
+    """,
+        (user_id,),
+    )
+    return await cursor.fetchall()
+
+async def all_passages(db, car_number):
+    cursor = await db.execute(
+        "SELECT passed_at, station, car_num, final_price FROM all_passages WHERE car_num = ?",
+        (car_number,),
+    )
+    return await cursor.fetchall()

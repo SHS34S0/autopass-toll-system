@@ -89,11 +89,11 @@ async def process_add_car(
         await db.execute("BEGIN TRANSACTION")
         await db.execute(
             "INSERT INTO vehicles (car_num, fuel_type) VALUES (?, ?)",
-            (car_number, fuel_type),
+            (car_number.upper(), fuel_type),
         )
         await db.execute(
             "INSERT INTO auto_pass (person_id, car_num) VALUES (?, ?)",
-            (user_id, car_number),
+            (user_id, car_number.upper()),
         )
         await db.execute("COMMIT")
     except Exception as e:
@@ -104,8 +104,8 @@ async def process_add_car(
             name="add_vehicle.html",
             context={"error": msg.CarMessages.PLATE_EXISTS},
         )
-    
-    await h.generate_fake_passages(db, car_number)
+
+    await h.generate_fake_passages(db, car_number.upper())
     return RedirectResponse(url="/dashboard", status_code=303)
 
 
@@ -115,20 +115,19 @@ async def dashboard(
 ):
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
-    cursor = await db.execute("SELECT * FROM persons WHERE id = ?", (user_id,))
-    row = await cursor.fetchone()
-    if not row:
-        return templates.TemplateResponse(
-            request=request,
-            name="login.html",
-            context={"error": msg.AuthMessages.AUTH_ERROR},
-        )
-    name = row[1]
-
+    cars_info = await h.active_vehicles(db, user_id)
+    if not cars_info:
+        return RedirectResponse(url="/add_vehicle", status_code=303)
+    
+    print(cars_info)
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
-        context={"username": name, "user_id": user_id},
+        context={
+            "user_id": user_id,
+            "cars_info": cars_info,
+            "active_vehicles": len(cars_info),
+        },
     )
 
 

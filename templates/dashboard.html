@@ -5,7 +5,7 @@
     <div class="container-dashboard">
         <div class="info-block">
             <p>ACTIVE VEHICLES</p>
-            <h2>2</h2>
+            <h2>{{ active_vehicles }}</h2>
         </div>
 
         <div class="icon-block">
@@ -19,7 +19,6 @@
         <div class="info-block">
             <p>TOTAL COST THIS MONTH</p>
             <h2>356 NOK</h2>
-            <!-- <h2>{{ username }} NOK</h2> -->
         </div>
 
         <div class="icon-block">
@@ -47,7 +46,8 @@
         <div class="info-block">
             <p><strong>MY VEHICLES</strong> (ACTIVE AGREEMENTS)</p>
 
-            <div class="container-cars">
+            {% for car in cars_info %}
+            <div class="container-cars mt-2">
                 <!-- number block -->
                 <div class="car_number">
                     <div class="plate-frame">
@@ -57,7 +57,7 @@
                             <span>N</span>
                         </div>
                         <div class="plate-number">
-                            EL 12345
+                            {{ car[0] }}
                         </div>
                     </div>
 
@@ -66,10 +66,18 @@
                 <!-- fuel -->
                 <div class="fuel-tupe">
                     <div class="icon-fuel">
-                        <span class="material-symbols-outlined">ev_station</span>
-                    </div>
-                    <div class="fuel-text">
-                        FUEL TYPE
+                        {% if car[1] == 1 %}
+                        {% set icon = 'local_gas_station' %}
+                        {% elif car[1] == 2 %}
+                        {% set icon = 'electric_car' %}
+                        {% elif car[1] == 3 %}
+                        {% set icon = 'electric_bolt' %}
+                        {% else %}
+                        {% set icon = 'local_gas_station' %}
+                        {% endif %}
+
+
+                        <span class="material-symbols-outlined">{{ icon }}</span>
                     </div>
                 </div>
 
@@ -79,12 +87,31 @@
                 </div>
 
             </div>
+            {% endfor %}
+
+
+
+
+
+
+
+
+
             <a href="/add_vehicle" class="btn btn-autopass mt-3 big-btn">+ ADD NEW VEHICLE</a>
         </div>
     </div>
     <div class="container-info">
         <div class="info-block">
             <p><strong>RECENT TOLL PASSGES</strong> (LATEST ACTIVITY)</p>
+
+            <tbody>
+                {% for birthday in birthdays %}
+                <tr>
+                    <td>{{ birthday.name }}</td>
+                    <td>{{ birthday.month }}/{{ birthday.day }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
 
 
         </div>

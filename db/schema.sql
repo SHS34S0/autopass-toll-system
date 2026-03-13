@@ -16,7 +16,8 @@ CREATE TABLE "auto_pass" (
     "car_num" TEXT,
     PRIMARY KEY("id"),
     FOREIGN KEY("person_id") REFERENCES "persons"("id"),
-    FOREIGN KEY("car_num") REFERENCES "vehicles"("car_num")
+    FOREIGN KEY("car_num") REFERENCES "vehicles"("car_num"),
+    UNIQUE("person_id", "car_num")
 );
 
 
