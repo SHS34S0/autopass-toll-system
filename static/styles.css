@@ -240,8 +240,9 @@ table td {
     vertical-align: middle;
 }
 
-tbody tr:nth-of-type(odd) {
-    background-color: rgb(179, 208, 255, 0.3)
+tbody tr:hover {
+    background-color: rgba(179, 208, 255, 0.3); 
+    transition: background-color 0.2s ease; /* Плавність (перехід) */
 }
 
 .big-btn {

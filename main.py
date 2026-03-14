@@ -111,11 +111,12 @@ async def dashboard(
 ):
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
-    cars_info = await h.active_vehicles(db, user_id)
+    cars_info = await h.get_active_vehicles(db, user_id)
     if not cars_info:
         return RedirectResponse(url="/add_vehicle", status_code=303)
 
-    print(cars_info)
+    # print(cars_info)
+    # print(await h.get_all_passages(db, cars_info))
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -123,6 +124,7 @@ async def dashboard(
             "user_id": user_id,
             "cars_info": cars_info,
             "active_vehicles": len(cars_info),
+            "passages": await h.get_all_passages(db, cars_info),
         },
     )
 

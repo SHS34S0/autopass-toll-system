@@ -83,7 +83,7 @@ async def generate_fake_passages(db, car_number):
     return True
 
 
-async def active_vehicles(db, user_id):
+async def get_active_vehicles(db, user_id):
     cursor = await db.execute(
         """
         SELECT DISTINCT auto_pass.car_num, vehicles.fuel_type
@@ -96,9 +96,20 @@ async def active_vehicles(db, user_id):
     return await cursor.fetchall()
 
 
-async def all_passages(db, car_number):
+def generate_dynamic_query(car_list):
+    car_numbers = []
+    placeholders = []
+    for car in car_list:
+        car_numbers.append(car[0])
+        placeholders.append("?")
+    glue = " , "
+    return glue.join(placeholders), car_numbers
+
+
+async def get_all_passages(db, car_number_raw):
+    placeholders, car_number = generate_dynamic_query(car_number_raw)
     cursor = await db.execute(
-        "SELECT passed_at, station, car_num, final_price_ore FROM all_passages WHERE car_num = ?",
-        (car_number,),
+        f"SELECT passed_at, station, car_num, final_price_ore FROM all_passages WHERE car_num IN ({placeholders}) order by passed_at DESC LIMIT 50",
+        car_number,
     )
     return await cursor.fetchall()

@@ -1,122 +1,130 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="row align-items">
-    <div class="container-dashboard">
-        <div class="info-block">
-            <p>ACTIVE VEHICLES</p>
-            <h2>{{ active_vehicles }}</h2>
+    <div class="row align-items">
+        <div class="container-dashboard">
+            <div class="info-block">
+                <p>ACTIVE VEHICLES</p>
+                <h2>{{ active_vehicles }}</h2>
+            </div>
+
+            <div class="icon-block">
+                <span class="material-symbols-outlined">directions_car</span>
+            </div>
         </div>
 
-        <div class="icon-block">
-            <span class="material-symbols-outlined">directions_car</span>
+
+        <div class="container-dashboard">
+            <div class="info-block">
+                <p>TOTAL COST THIS MONTH</p>
+                <h2>356 NOK</h2>
+            </div>
+
+            <div class="icon-block">
+                <span class="material-symbols-outlined">finance_mode</span>
+            </div>
         </div>
+
+
+        <div class="container-dashboard">
+            <div class="info-block">
+                <p>ECO-SAVING BONUS</p>
+                <h2>123 NOK</h2>
+            </div>
+
+            <div class="eco-icon-block">
+                <span class="material-symbols-outlined">eco</span>
+            </div>
+        </div>
+
     </div>
+    <div class="row align-items mt-2">
+        <div class="container-info">
+            <div class="info-block">
+                <p><strong>MY VEHICLES</strong> (ACTIVE AGREEMENTS)</p>
 
+                {% for car in cars_info %}
+                    <div class="container-cars mt-2">
+                        <!-- number block -->
+                        <div class="car_number">
+                            <div class="plate-frame">
+                                <div class="plate-blue">
 
+                                    <span><img src="/static/Flag.png" alt="" width="18"></span>
+                                    <span>N</span>
+                                </div>
+                                <div class="plate-number">
+                                    {{ car[0] }}
+                                </div>
+                            </div>
 
-    <div class="container-dashboard">
-        <div class="info-block">
-            <p>TOTAL COST THIS MONTH</p>
-            <h2>356 NOK</h2>
-        </div>
-
-        <div class="icon-block">
-            <span class="material-symbols-outlined">finance_mode</span>
-        </div>
-    </div>
-
-
-
-
-    <div class="container-dashboard">
-        <div class="info-block">
-            <p>ECO-SAVING BONUS</p>
-            <h2>123 NOK</h2>
-        </div>
-
-        <div class="eco-icon-block">
-            <span class="material-symbols-outlined">eco</span>
-        </div>
-    </div>
-
-</div>
-<div class="row align-items mt-2">
-    <div class="container-info">
-        <div class="info-block">
-            <p><strong>MY VEHICLES</strong> (ACTIVE AGREEMENTS)</p>
-
-            {% for car in cars_info %}
-            <div class="container-cars mt-2">
-                <!-- number block -->
-                <div class="car_number">
-                    <div class="plate-frame">
-                        <div class="plate-blue">
-
-                            <span><img src="/static/Flag.png" alt="" width="18"></span>
-                            <span>N</span>
                         </div>
-                        <div class="plate-number">
-                            {{ car[0] }}
+
+                        <!-- fuel -->
+                        <div class="fuel-tupe">
+                            <div class="icon-fuel">
+                                {% if car[1] == 1 %}
+                                    {% set icon = 'local_gas_station' %}
+                                {% elif car[1] == 2 %}
+                                    {% set icon = 'electric_car' %}
+                                {% elif car[1] == 3 %}
+                                    {% set icon = 'electric_bolt' %}
+                                {% else %}
+                                    {% set icon = 'local_gas_station' %}
+                                {% endif %}
+
+
+                                <span class="material-symbols-outlined">{{ icon }}</span>
+                            </div>
                         </div>
+
+                        <!-- view -->
+                        <div class="view-trips m-3">
+                            <div class="btn btn-view-trips big-btn">VIEW TRIPS</div>
+                        </div>
+
                     </div>
-
-                </div>
-
-                <!-- fuel -->
-                <div class="fuel-tupe">
-                    <div class="icon-fuel">
-                        {% if car[1] == 1 %}
-                        {% set icon = 'local_gas_station' %}
-                        {% elif car[1] == 2 %}
-                        {% set icon = 'electric_car' %}
-                        {% elif car[1] == 3 %}
-                        {% set icon = 'electric_bolt' %}
-                        {% else %}
-                        {% set icon = 'local_gas_station' %}
-                        {% endif %}
+                {% endfor %}
 
 
-                        <span class="material-symbols-outlined">{{ icon }}</span>
-                    </div>
-                </div>
 
-                <!-- view -->
-                <div class="view-trips m-3">
-                    <div class="btn btn-view-trips big-btn">VIEW TRIPS</div>
-                </div>
+
+
+
+
+
+
+                <a href="/add_vehicle" class="btn btn-autopass mt-3 big-btn">+ ADD NEW VEHICLE</a>
+            </div>
+        </div>
+        <div class="container-info">
+            <div class="info-block">
+                <p><strong>RECENT TOLL PASSGES</strong> (LATEST ACTIVITY)</p>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>TIME</th>
+                        <th>STATION</th>
+                        <th>VEHICLE</th>
+                        <th>COST</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for one_passege in passages %}
+                        <tr>
+                            <td>{{ one_passege[0] }}</td>
+                            <td>{{ one_passege[1] }}</td>
+                            <td>{{ one_passege[2] }}</td>
+                            <td>{{ one_passege[3] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
 
             </div>
-            {% endfor %}
-
-
-
-
-
-
-
-
-
-            <a href="/add_vehicle" class="btn btn-autopass mt-3 big-btn">+ ADD NEW VEHICLE</a>
         </div>
     </div>
-    <div class="container-info">
-        <div class="info-block">
-            <p><strong>RECENT TOLL PASSGES</strong> (LATEST ACTIVITY)</p>
-
-            <tbody>
-                {% for birthday in birthdays %}
-                <tr>
-                    <td>{{ birthday.name }}</td>
-                    <td>{{ birthday.month }}/{{ birthday.day }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-
-
-        </div>
-    </div>
-</div>
 
 
 {% endblock %}
