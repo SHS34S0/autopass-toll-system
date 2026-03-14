@@ -1,3 +1,5 @@
+from pydoc import replace
+
 from pydantic import (
     BaseModel,
     Field,
@@ -44,9 +46,17 @@ class UserLoginModel(BaseModel):
 
 
 class CarAddModel(BaseModel):
-    car_number: str = Field(pattern=r"^[A-Za-z]{2}\s?\d{1,5}$")
+    car_number: str = Field(pattern=r"^[A-Za-z]{2}\s?\d{5}$", min_length=7, max_length=8)
     make: str = Field(min_length=2, max_length=128)
     model: str = Field(min_length=2, max_length=128)
     fuel_type: str = Field(min_length=2, max_length=128)
 
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator("car_number", mode='after')
+    @classmethod
+    def format_carnumber(cls, value: str):
+        if value[2] == " ":
+            return value.upper().strip()
+        value = value[:2] + " " + value[2:]
+        return value.upper().strip()

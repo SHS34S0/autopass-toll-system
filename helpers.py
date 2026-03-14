@@ -2,10 +2,8 @@ from fastapi import Request
 import jwt
 from werkzeug.security import check_password_hash
 import config
-from datetime import datetime, timedelta, timezone
+from datetime import timezone
 from fastapi.responses import RedirectResponse
-import random
-from datetime import datetime, timedelta
 
 
 async def check_user_id(email: str, password: str, db):
@@ -63,15 +61,6 @@ from datetime import datetime, timedelta
 
 
 def get_random_date_in_past(days=30):
-    # Обчислюємо максимальний відступ у секундах (30 днів * 24г * 60хв * 60с)
-    max_seconds = days * 24 * 60 * 60
-    random_seconds = random.randint(0, max_seconds)
-
-    # Віднімаємо цей час від "зараз"
-    return datetime.now() - timedelta(seconds=random_seconds)
-
-
-def get_random_date_in_past(days=30):
     max_seconds = days * 24 * 60 * 60
     random_seconds = random.randint(0, max_seconds)
     return datetime.now().replace(microsecond=0) - timedelta(seconds=random_seconds)
@@ -97,18 +86,19 @@ async def generate_fake_passages(db, car_number):
 async def active_vehicles(db, user_id):
     cursor = await db.execute(
         """
-    SELECT DISTINCT auto_pass.car_num, vehicles.fuel_type
-    FROM auto_pass
-    JOIN vehicles ON auto_pass.car_num = vehicles.car_num
-    WHERE auto_pass.person_id = ?
-    """,
+        SELECT DISTINCT auto_pass.car_num, vehicles.fuel_type
+        FROM auto_pass
+                 JOIN vehicles ON auto_pass.car_num = vehicles.car_num
+        WHERE auto_pass.person_id = ?
+        """,
         (user_id,),
     )
     return await cursor.fetchall()
 
+
 async def all_passages(db, car_number):
     cursor = await db.execute(
-        "SELECT passed_at, station, car_num, final_price FROM all_passages WHERE car_num = ?",
+        "SELECT passed_at, station, car_num, final_price_ore FROM all_passages WHERE car_num = ?",
         (car_number,),
     )
     return await cursor.fetchall()

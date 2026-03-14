@@ -12,7 +12,6 @@ from fastapi.responses import RedirectResponse
 import os
 import helpers as h
 import messages as msg
-import random
 
 
 @asynccontextmanager
@@ -48,7 +47,7 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/add_vehicle", tags=["add_vehicle"])
 async def add_car(
-    request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
+        request: Request, user_id: int = Depends(h.get_user_id)
 ):
     if not user_id:
         return RedirectResponse(url="/login", status_code=303)
@@ -59,13 +58,13 @@ async def add_car(
 
 @app.post("/add_vehicle", tags=["add_vehicle"])
 async def process_add_car(
-    request: Request,
-    car_number: str = Form(),
-    make: str = Form(),
-    model: str = Form(),
-    fuel_type: str = Form(),
-    user_id: int = Depends(h.get_user_id),
-    db=Depends(get_db),
+        request: Request,
+        car_number: str = Form(),
+        make: str = Form(),
+        model: str = Form(),
+        fuel_type: str = Form(),
+        user_id: int = Depends(h.get_user_id),
+        db=Depends(get_db),
 ):
     if not user_id:
         return RedirectResponse(url="/login", status_code=303)
@@ -80,20 +79,17 @@ async def process_add_car(
             name="add_vehicle.html",
             context={"error": msg.CarMessages.ERROR},
         )
-    if len(car_number) != 8:
-        car_number = car_number[:2] + " " + car_number[2:]
-
-    fuel_type = h.fuel_type_to_id(fuel_type)
+    car_data.fuel_type = h.fuel_type_to_id(car_data.fuel_type)
     # Transaction
     try:
         await db.execute("BEGIN TRANSACTION")
         await db.execute(
             "INSERT INTO vehicles (car_num, fuel_type) VALUES (?, ?)",
-            (car_number.upper(), fuel_type),
+            (car_data.car_number.upper(), car_data.fuel_type),
         )
         await db.execute(
             "INSERT INTO auto_pass (person_id, car_num) VALUES (?, ?)",
-            (user_id, car_number.upper()),
+            (user_id, car_data.car_number.upper()),
         )
         await db.execute("COMMIT")
     except Exception as e:
@@ -105,20 +101,20 @@ async def process_add_car(
             context={"error": msg.CarMessages.PLATE_EXISTS},
         )
 
-    await h.generate_fake_passages(db, car_number.upper())
+    await h.generate_fake_passages(db, car_data.car_number.upper())
     return RedirectResponse(url="/dashboard", status_code=303)
 
 
 @app.get("/dashboard", tags=["dashboard"])
 async def dashboard(
-    request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
+        request: Request, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
 ):
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
     cars_info = await h.active_vehicles(db, user_id)
     if not cars_info:
         return RedirectResponse(url="/add_vehicle", status_code=303)
-    
+
     print(cars_info)
     return templates.TemplateResponse(
         request=request,
@@ -151,10 +147,10 @@ def render_page_login(request: Request, user_id: int | None = Depends(h.get_user
 
 @app.post("/login", tags=["login"])
 async def process_login(
-    request: Request,
-    email: str = Form(),
-    password: str = Form(),
-    db=Depends(get_db),
+        request: Request,
+        email: str = Form(),
+        password: str = Form(),
+        db=Depends(get_db),
 ):
     try:
         user_data = UserLoginModel(email=email, password=password)
@@ -184,7 +180,7 @@ def logout():
 
 @app.get("/register", tags=["register"])
 def render_page_register(
-    request: Request, user_id: int | None = Depends(h.get_user_id)
+        request: Request, user_id: int | None = Depends(h.get_user_id)
 ):
     if user_id:
         return RedirectResponse(url="/dashboard", status_code=303)
@@ -193,14 +189,14 @@ def render_page_register(
 
 @app.post("/register", tags=["register"])
 async def process_register(
-    request: Request,
-    first_name: str = Form(),
-    last_name: str = Form(),
-    email: str = Form(),
-    password: str = Form(),
-    confirmation: str = Form(),
-    phone: str = Form(),
-    db=Depends(get_db),
+        request: Request,
+        first_name: str = Form(),
+        last_name: str = Form(),
+        email: str = Form(),
+        password: str = Form(),
+        confirmation: str = Form(),
+        phone: str = Form(),
+        db=Depends(get_db),
 ):
     # check user exist
     if await h.user_exists(email, db):
