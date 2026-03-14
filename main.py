@@ -117,6 +117,7 @@ async def dashboard(
 
     # print(cars_info)
     # print(await h.get_all_passages(db, cars_info))
+    print(await h.get_cost_this_month(db, cars_info))
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -125,6 +126,7 @@ async def dashboard(
             "cars_info": cars_info,
             "active_vehicles": len(cars_info),
             "passages": await h.get_all_passages(db, cars_info),
+            "this_month_cost": await h.get_cost_this_month(db, cars_info)
         },
     )
 

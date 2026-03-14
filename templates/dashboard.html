@@ -17,7 +17,7 @@
         <div class="container-dashboard">
             <div class="info-block">
                 <p>TOTAL COST THIS MONTH</p>
-                <h2>356 NOK</h2>
+                <h2>{{ this_month_cost[1] }} NOK</h2>
             </div>
 
             <div class="icon-block">
@@ -29,7 +29,7 @@
         <div class="container-dashboard">
             <div class="info-block">
                 <p>ECO-SAVING BONUS</p>
-                <h2>123 NOK</h2>
+                <h2>{{ this_month_cost[0] - this_month_cost[1] }} NOK</h2>
             </div>
 
             <div class="eco-icon-block">
@@ -115,7 +115,7 @@
                             <td>{{ one_passege[0] }}</td>
                             <td>{{ one_passege[1] }}</td>
                             <td>{{ one_passege[2] }}</td>
-                            <td>{{ one_passege[3] }}</td>
+                            <td>{{ one_passege[3] / 100 }} NOK</td>
                         </tr>
                     {% endfor %}
                     </tbody>

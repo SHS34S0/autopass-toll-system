@@ -109,7 +109,23 @@ def generate_dynamic_query(car_list):
 async def get_all_passages(db, car_number_raw):
     placeholders, car_number = generate_dynamic_query(car_number_raw)
     cursor = await db.execute(
-        f"SELECT passed_at, station, car_num, final_price_ore FROM all_passages WHERE car_num IN ({placeholders}) order by passed_at DESC LIMIT 50",
+        f"SELECT passed_at, station, car_num, final_price_ore FROM all_passages WHERE car_num IN ({placeholders}) ORDER BY passed_at DESC LIMIT 50",
         car_number,
     )
     return await cursor.fetchall()
+
+
+async def get_cost_this_month(db, car_number_raw):
+    placeholders, car_number = generate_dynamic_query(car_number_raw)
+    cursor = await db.execute(
+        f"""
+        SELECT SUM(base_price) AS total,
+               SUM(final_price_ore) AS final
+        FROM all_passages
+        WHERE passed_at >= date('now','start of month')
+          AND passed_at < date('now','start of month','+1 month')
+          AND car_num IN ({placeholders})
+        """,
+        car_number
+    )
+    return await cursor.fetchone()
