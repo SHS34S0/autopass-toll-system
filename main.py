@@ -1,3 +1,5 @@
+from sqlite3 import IntegrityError
+
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.staticfiles import (
     StaticFiles,
@@ -145,6 +147,7 @@ async def dashboard(
             "user_id": user_id,
             "cars_info": cars_info,
             "active_vehicles": len(cars_info),
+            # need to pass the tuple for the cache to work
             "passages": await h.get_all_passages(db, tuple(cars_info)),
             "this_month_cost": await h.get_cost_this_month(db, tuple(cars_info)),
         },
@@ -255,16 +258,6 @@ async def process_register(
         phone: str = Form(),
         db=Depends(get_db),
 ):
-    # check user exist
-    if await h.user_exists(email, db):
-        logger.warning(f"User {email} already exists")
-        return templates.TemplateResponse(
-            request=request,
-            name="register.html",
-            context={
-                "error": msg.AuthMessages.EMAIL_EXISTS,
-            },
-        )
     try:
         # try to create a UserRegisterModel instance with the provided data
         user_data = UserRegisterModel(
@@ -277,8 +270,6 @@ async def process_register(
         )
 
     except ValidationError:
-        logger.warning(f"{email} failed")
-
         return templates.TemplateResponse(
             request=request,
             name="register.html",
@@ -288,18 +279,28 @@ async def process_register(
         )
 
     password_hash = generate_password_hash(user_data.password)
-
-    await db.execute(
-        "INSERT INTO persons (first_name, last_name, email, hash, phone) VALUES (?, ?, ?, ?, ?)",
-        (
-            user_data.first_name,
-            user_data.last_name,
-            user_data.email,
-            password_hash,
-            user_data.phone,
-        ),
-    )
-    await db.commit()
+    try:
+        await db.execute(
+            "INSERT INTO persons (first_name, last_name, email, hash, phone) VALUES (?, ?, ?, ?, ?)",
+            (
+                user_data.first_name,
+                user_data.last_name,
+                user_data.email,
+                password_hash,
+                user_data.phone,
+            ),
+        )
+        await db.commit()
+    except Exception as e:
+        print(e)
+        logger.warning(f"User {email} already exists")
+        return templates.TemplateResponse(
+            request=request,
+            name="register.html",
+            context={
+                "error": msg.AuthMessages.EMAIL_EXISTS,
+            },
+        )
     user_id = await h.check_user_id(user_data.email, user_data.password, db)
     logger.warning(f"User {email} successfully registered")
 

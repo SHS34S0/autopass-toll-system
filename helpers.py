@@ -36,14 +36,6 @@ def create_access_token(user_id: int):
     return response
 
 
-async def user_exists(email, db):
-    cursor = await db.execute(
-        "SELECT * FROM persons WHERE email = ?", (email.lower().strip(),)
-    )
-    result = await cursor.fetchone() is not None
-    return True if result else False
-
-
 def get_user_id(request: Request):
     token = request.cookies.get("access_token")
 
