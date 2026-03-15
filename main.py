@@ -117,7 +117,6 @@ async def dashboard(
 
     # print(cars_info)
     # print(await h.get_all_passages(db, cars_info))
-    print(await h.get_cost_this_month(db, cars_info))
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -127,6 +126,36 @@ async def dashboard(
             "active_vehicles": len(cars_info),
             "passages": await h.get_all_passages(db, cars_info),
             "this_month_cost": await h.get_cost_this_month(db, cars_info)
+        },
+    )
+
+
+@app.get("/dashboard/{car_num}", tags=["dashboard"])
+async def view_trips(
+        request: Request, car_num: str, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
+):
+    if not user_id:
+        return RedirectResponse(url="/", status_code=303)
+    if not await h.get_own_vehicles(db, user_id, car_num.replace("_", " ")):
+        return RedirectResponse(url="/dashboard", status_code=303)
+    cars_info = await h.get_active_vehicles(db, user_id)
+    if not cars_info:
+        return RedirectResponse(url="/add_vehicle", status_code=303)
+    # conversion is needed to use 2 existing functions rather than writing new ones
+    car_num_raw = [(car_num.replace("_", " "),)]
+    this_month_cost_1_car = await h.get_cost_this_month(db, car_num_raw)
+    if not this_month_cost_1_car[0]:
+        return RedirectResponse(url="/dashboard", status_code=303)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="dashboard.html",
+        context={
+            "user_id": user_id,
+            "car_num": car_num.replace("_", " "),
+            "cars_info": cars_info,
+            "this_month_cost_1_car": this_month_cost_1_car,
+            "passages": await h.get_all_passages(db, car_num_raw),
         },
     )
 

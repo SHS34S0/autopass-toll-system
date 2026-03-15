@@ -1,11 +1,24 @@
 {% extends "layout.html" %}
 
+
+
+
+
 {% block content %}
+
     <div class="row align-items">
         <div class="container-dashboard">
             <div class="info-block">
-                <p>ACTIVE VEHICLES</p>
-                <h2>{{ active_vehicles }}</h2>
+                {% if active_vehicles %}
+                    <p>ACTIVE VEHICLES</p>
+                    <h2>{{ active_vehicles }}</h2>
+
+                {% else %}
+                    <p>PASSGES</p>
+                    <h2>{{ car_num }}</h2>
+                {% endif %}
+
+
             </div>
 
             <div class="icon-block">
@@ -17,7 +30,11 @@
         <div class="container-dashboard">
             <div class="info-block">
                 <p>TOTAL COST THIS MONTH</p>
-                <h2>{{ this_month_cost[1] / 100 }} NOK</h2>
+                {% if this_month_cost %}
+                    <h2>{{ this_month_cost[1] / 100 }} NOK</h2>
+                {% else %}
+                    <h2>{{ this_month_cost_1_car[1] / 100 }} NOK</h2>
+                {% endif %}
             </div>
 
             <div class="icon-block">
@@ -29,7 +46,11 @@
         <div class="container-dashboard">
             <div class="info-block">
                 <p>ECO-SAVING BONUS</p>
-                <h2>{{ (this_month_cost[0] - this_month_cost[1]) / 100 }} NOK</h2>
+                {% if this_month_cost %}
+                    <h2>{{ (this_month_cost[0] - this_month_cost[1]) / 100 }} NOK</h2>
+                {% else %}
+                    <h2>{{ (this_month_cost_1_car[0] - this_month_cost_1_car[1]) / 100 }} NOK</h2>
+                {% endif %}
             </div>
 
             <div class="eco-icon-block">
@@ -80,7 +101,8 @@
 
                             <!-- view -->
                             <div class="view-trips m-3">
-                                <div class="btn btn-view-trips big-btn">VIEW TRIPS</div>
+                                <a href="/dashboard/{{ car[0][:2] }}_{{ car[0][3:] }}"
+                                   class="btn btn-view-trips big-btn">VIEW TRIPS</a>
                             </div>
 
                         </div>

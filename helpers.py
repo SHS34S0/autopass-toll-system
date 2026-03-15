@@ -129,3 +129,16 @@ async def get_cost_this_month(db, car_number_raw):
         car_number
     )
     return await cursor.fetchone()
+
+
+async def get_own_vehicles(db, user_id, car_num):
+    cursor = await db.execute(
+        """
+        SELECT *
+        FROM auto_pass
+        WHERE person_id = ?
+          AND car_num = ?
+        """,
+        (user_id, car_num),
+    )
+    return await cursor.fetchall()
