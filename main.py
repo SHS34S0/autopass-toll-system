@@ -12,6 +12,17 @@ from fastapi.responses import RedirectResponse
 import os
 import helpers as h
 import messages as msg
+import logging
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    handlers=[
+        logging.FileHandler("autopass.log", encoding="utf-8"),
+        logging.StreamHandler()
+    ],
+    level=logging.WARNING,
+    format="[%(asctime)s] [%(name)s] %(levelname)s (line %(lineno)d): %(message)s", )
 
 
 @asynccontextmanager
@@ -25,8 +36,11 @@ async def lifespan(fastapi_app: FastAPI):
                 schema = f.read()
                 station = s.read()
                 await fastapi_app.state.db.executescript(schema)
+                logger.warning(f"Database schema created")
                 await fastapi_app.state.db.executescript(station)
+                logger.warning(f"Database insert toll stations created")
                 await fastapi_app.state.db.commit()
+                logger.warning(f"Database committed")
     # pause the execution of the lifespan function until the app is shutting down
     yield
     # stop the execution of the lifespan function and continue with the shutdown process
@@ -74,6 +88,7 @@ async def process_add_car(
             car_number=car_number, make=make, model=model, fuel_type=fuel_type
         )
     except ValidationError:
+        logger.warning(f"Car {car_number} does not exist")
         return templates.TemplateResponse(
             request=request,
             name="add_vehicle.html",
@@ -94,7 +109,7 @@ async def process_add_car(
         await db.execute("COMMIT")
     except Exception as e:
         await db.execute("ROLLBACK")
-        # logging
+        logger.error(e)
         return templates.TemplateResponse(
             request=request,
             name="add_vehicle.html",
@@ -102,6 +117,12 @@ async def process_add_car(
         )
 
     await h.generate_fake_passages(db, car_data.car_number.upper())
+
+    h.get_own_vehicles.cache_clear()
+    h.get_cost_this_month.cache_clear()
+    h.get_all_passages.cache_clear()
+    h.get_active_vehicles.cache_clear()
+
     return RedirectResponse(url="/dashboard", status_code=303)
 
 
@@ -124,8 +145,8 @@ async def dashboard(
             "user_id": user_id,
             "cars_info": cars_info,
             "active_vehicles": len(cars_info),
-            "passages": await h.get_all_passages(db, cars_info),
-            "this_month_cost": await h.get_cost_this_month(db, cars_info)
+            "passages": await h.get_all_passages(db, tuple(cars_info)),
+            "this_month_cost": await h.get_cost_this_month(db, tuple(cars_info)),
         },
     )
 
@@ -137,12 +158,13 @@ async def view_trips(
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
     if not await h.get_own_vehicles(db, user_id, car_num.replace("_", " ")):
+        logger.warning(f"User {user_id} does not own {car_num}")
         return RedirectResponse(url="/dashboard", status_code=303)
     cars_info = await h.get_active_vehicles(db, user_id)
     if not cars_info:
         return RedirectResponse(url="/add_vehicle", status_code=303)
     # conversion is needed to use 2 existing functions rather than writing new ones
-    car_num_raw = [(car_num.replace("_", " "),)]
+    car_num_raw = ((car_num.replace("_", " "),),)
     this_month_cost_1_car = await h.get_cost_this_month(db, car_num_raw)
     if not this_month_cost_1_car[0]:
         return RedirectResponse(url="/dashboard", status_code=303)
@@ -188,6 +210,7 @@ async def process_login(
     try:
         user_data = UserLoginModel(email=email, password=password)
     except ValidationError:
+        logger.warning(f"User {email} failed")
         return templates.TemplateResponse(
             request=request,
             name="login.html",
@@ -195,6 +218,7 @@ async def process_login(
         )
     user_id = await h.check_user_id(user_data.email, user_data.password, db)
     if not user_id:
+        logger.warning(f"User {email} failed")
         return templates.TemplateResponse(
             request=request,
             name="login.html",
@@ -233,6 +257,7 @@ async def process_register(
 ):
     # check user exist
     if await h.user_exists(email, db):
+        logger.warning(f"User {email} already exists")
         return templates.TemplateResponse(
             request=request,
             name="register.html",
@@ -252,6 +277,7 @@ async def process_register(
         )
 
     except ValidationError:
+        logger.warning(f"{email} failed")
 
         return templates.TemplateResponse(
             request=request,
@@ -275,11 +301,14 @@ async def process_register(
     )
     await db.commit()
     user_id = await h.check_user_id(user_data.email, user_data.password, db)
+    logger.warning(f"User {email} successfully registered")
 
     if not user_id:
+        logger.error(f"User {email} failed")
         return templates.TemplateResponse(
             request=request,
             name="login.html",
             context={"error": msg.AuthMessages.AUTH_ERROR},
         )
+
     return h.create_access_token(user_id)

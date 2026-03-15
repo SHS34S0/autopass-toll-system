@@ -4,6 +4,10 @@ from werkzeug.security import check_password_hash
 import config
 from datetime import timezone
 from fastapi.responses import RedirectResponse
+from async_lru import alru_cache
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 async def check_user_id(email: str, password: str, db):
@@ -78,11 +82,12 @@ async def generate_fake_passages(db, car_number):
         await db.commit()
 
     except Exception as e:
-        # logging
+        logger.error(e)
         return False
     return True
 
 
+@alru_cache(maxsize=1000)
 async def get_active_vehicles(db, user_id):
     cursor = await db.execute(
         """
@@ -106,6 +111,7 @@ def generate_dynamic_query(car_list):
     return glue.join(placeholders), car_numbers
 
 
+@alru_cache(maxsize=1000)
 async def get_all_passages(db, car_number_raw):
     placeholders, car_number = generate_dynamic_query(car_number_raw)
     cursor = await db.execute(
@@ -115,6 +121,7 @@ async def get_all_passages(db, car_number_raw):
     return await cursor.fetchall()
 
 
+@alru_cache(maxsize=1000)
 async def get_cost_this_month(db, car_number_raw):
     placeholders, car_number = generate_dynamic_query(car_number_raw)
     cursor = await db.execute(
@@ -131,6 +138,7 @@ async def get_cost_this_month(db, car_number_raw):
     return await cursor.fetchone()
 
 
+@alru_cache(maxsize=1000)
 async def get_own_vehicles(db, user_id, car_num):
     cursor = await db.execute(
         """

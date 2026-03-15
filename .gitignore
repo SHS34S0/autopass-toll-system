@@ -6,3 +6,4 @@ config.py
 .idea/
 test.py
 queries.sql
+autopass.log

@@ -3,3 +3,4 @@ pydantic
 aiosqlite
 werkzeug
 PyJWT
+async-lru
