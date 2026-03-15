@@ -17,7 +17,7 @@
         <div class="container-dashboard">
             <div class="info-block">
                 <p>TOTAL COST THIS MONTH</p>
-                <h2>{{ this_month_cost[1] }} NOK</h2>
+                <h2>{{ this_month_cost[1] / 100 }} NOK</h2>
             </div>
 
             <div class="icon-block">
@@ -29,7 +29,7 @@
         <div class="container-dashboard">
             <div class="info-block">
                 <p>ECO-SAVING BONUS</p>
-                <h2>{{ this_month_cost[0] - this_month_cost[1] }} NOK</h2>
+                <h2>{{ (this_month_cost[0] - this_month_cost[1]) / 100 }} NOK</h2>
             </div>
 
             <div class="eco-icon-block">
@@ -42,84 +42,79 @@
         <div class="container-info">
             <div class="info-block">
                 <p><strong>MY VEHICLES</strong> (ACTIVE AGREEMENTS)</p>
+                <div class="table-container">
+                    {% for car in cars_info %}
+                        <div class="container-cars mt-2">
+                            <!-- number block -->
+                            <div class="car_number">
+                                <div class="plate-frame">
+                                    <div class="plate-blue">
 
-                {% for car in cars_info %}
-                    <div class="container-cars mt-2">
-                        <!-- number block -->
-                        <div class="car_number">
-                            <div class="plate-frame">
-                                <div class="plate-blue">
-
-                                    <span><img src="/static/Flag.png" alt="" width="18"></span>
-                                    <span>N</span>
+                                        <span><img src="/static/Flag.png" alt="" width="18"></span>
+                                        <span>N</span>
+                                    </div>
+                                    <div class="plate-number">
+                                        {{ car[0] }}
+                                    </div>
                                 </div>
-                                <div class="plate-number">
-                                    {{ car[0] }}
+
+                            </div>
+
+                            <!-- fuel -->
+                            <div class="fuel-tupe">
+                                <div class="icon-fuel">
+                                    {% if car[1] == 1 %}
+                                        {% set icon = 'local_gas_station' %}
+                                    {% elif car[1] == 2 %}
+                                        {% set icon = 'electric_car' %}
+                                    {% elif car[1] == 3 %}
+                                        {% set icon = 'electric_bolt' %}
+                                    {% else %}
+                                        {% set icon = 'local_gas_station' %}
+                                    {% endif %}
+
+
+                                    <span class="material-symbols-outlined">{{ icon }}</span>
                                 </div>
                             </div>
 
-                        </div>
-
-                        <!-- fuel -->
-                        <div class="fuel-tupe">
-                            <div class="icon-fuel">
-                                {% if car[1] == 1 %}
-                                    {% set icon = 'local_gas_station' %}
-                                {% elif car[1] == 2 %}
-                                    {% set icon = 'electric_car' %}
-                                {% elif car[1] == 3 %}
-                                    {% set icon = 'electric_bolt' %}
-                                {% else %}
-                                    {% set icon = 'local_gas_station' %}
-                                {% endif %}
-
-
-                                <span class="material-symbols-outlined">{{ icon }}</span>
+                            <!-- view -->
+                            <div class="view-trips m-3">
+                                <div class="btn btn-view-trips big-btn">VIEW TRIPS</div>
                             </div>
+
                         </div>
-
-                        <!-- view -->
-                        <div class="view-trips m-3">
-                            <div class="btn btn-view-trips big-btn">VIEW TRIPS</div>
-                        </div>
-
-                    </div>
-                {% endfor %}
-
-
-
-
-
-
-
-
-
+                    {% endfor %}
+                </div>
                 <a href="/add_vehicle" class="btn btn-autopass mt-3 big-btn">+ ADD NEW VEHICLE</a>
             </div>
         </div>
         <div class="container-info">
             <div class="info-block">
                 <p><strong>RECENT TOLL PASSGES</strong> (LATEST ACTIVITY)</p>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>TIME</th>
-                        <th>STATION</th>
-                        <th>VEHICLE</th>
-                        <th>COST</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for one_passege in passages %}
+                <div class="table-container">
+                    <table>
+                        <thead>
                         <tr>
-                            <td>{{ one_passege[0] }}</td>
-                            <td>{{ one_passege[1] }}</td>
-                            <td>{{ one_passege[2] }}</td>
-                            <td>{{ one_passege[3] / 100 }} NOK</td>
+                            <th>TIME</th>
+                            <th>STATION</th>
+                            <th>VEHICLE</th>
+                            <th>COST</th>
                         </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        {% for one_passege in passages %}
+                            <tr>
+                                <td>{{ one_passege[0] }}</td>
+                                <td>{{ one_passege[1] }}</td>
+                                <td>{{ one_passege[2] }}</td>
+                                <td>{{ one_passege[3] / 100 }} NOK</td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
 
 
             </div>

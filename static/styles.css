@@ -15,7 +15,7 @@ body {
     text-align: center;
     width: 90%;
     border-radius: 2rem;
-    background-color:#F8FAFC;
+    background-color: #F8FAFC;
 }
 
 .container-dashboard {
@@ -24,7 +24,7 @@ body {
     text-align: left;
     width: 33%;
     border-radius: 7px;
-    background-color:#F8FAFC;
+    background-color: #F8FAFC;
     display: flex;
     overflow: hidden;
     padding: 0;
@@ -43,10 +43,12 @@ body {
     justify-content: center;
     align-items: center;
 }
+
 .icon-block span {
     color: #1a4b8c;
     font-size: 36px;
 }
+
 .eco-icon-block {
     display: flex;
     background-color: #daf3da;
@@ -57,19 +59,21 @@ body {
 
 .eco-icon-block span {
     color: #417543;
-    font-size: 36;
+    font-size: 36px;
 }
+
 .container-info {
     margin-left: auto;
     margin-right: auto;
     text-align: left;
     width: 49.5%;
     border-radius: 7px;
-    background-color:#F8FAFC;
+    background-color: #F8FAFC;
     display: flex;
     overflow: hidden;
     padding: 0;
 }
+
 .auth_container {
     margin-left: auto;
     margin-right: auto;
@@ -78,7 +82,7 @@ body {
     text-align: center;
     width: 50%;
     border-radius: 2rem;
-    background-color:#F8FAFC;
+    background-color: #F8FAFC;
 }
 
 
@@ -105,7 +109,7 @@ body {
     width: 50%;
     justify-content: center;
     align-items: center;
-    
+
 }
 
 .fuel-tupe {
@@ -115,20 +119,24 @@ body {
     justify-content: center;
     align-items: center;
 }
+
 .fuel-tupe span {
     color: #1a4b8c;
     font-size: 36px;
 }
+
 .icon-fuel {
     display: flex;
     width: 25%;
     justify-content: center;
     align-items: center;
 }
+
 .icon-fuel span {
     color: #1E293B;
     font-size: 36px;
 }
+
 .fuel-text {
     display: flex;
     width: 50%;
@@ -144,6 +152,7 @@ body {
     justify-content: center;
     align-items: center;
 }
+
 .icon-fuel span {
     color: #1E293B;
     font-size: 36px;
@@ -172,14 +181,18 @@ body {
     display: flex;
 
 }
+
 .plate-number {
     flex-grow: 1;
     color: #1E293B;
     font-weight: bold;
-        font-size: 35px;
+    font-size: 35px;
     letter-spacing: 2px;
-    display: flex; justify-content: center; align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
 /* .header {
     background-color: #477bff;
     color: #fff;
@@ -241,7 +254,7 @@ table td {
 }
 
 tbody tr:hover {
-    background-color: rgba(179, 208, 255, 0.3); 
+    background-color: rgba(179, 208, 255, 0.3);
     transition: background-color 0.2s ease; /* Плавність (перехід) */
 }
 
@@ -253,9 +266,9 @@ tbody tr:hover {
 }
 
 .bg-overlay {
-    min-height: 100vh; 
-    background: linear-gradient(rgba(20, 65, 106, 0.8), rgba(20, 65, 106, 0.8)), 
-                url('/static/autopass.avif');
+    min-height: 100vh;
+    background: linear-gradient(rgba(20, 65, 106, 0.8), rgba(20, 65, 106, 0.8)),
+    url('/static/autopass.avif');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -266,12 +279,12 @@ tbody tr:hover {
     border-radius: 10px;
     border: 1px solid #ffffff;
     display: inline-block; /* Щоб відступи працювали на посиланнях */
-    margin-bottom: 10px;   /* Створює вертикальну відстань між кнопками */
+    margin-bottom: 10px; /* Створює вертикальну відстань між кнопками */
     text-decoration: none; /* Прибирає підкреслення, якщо це посилання */
     color: white;
-    min-width: 130px;    /* Однаковий розмір для обох кнопок */
+    min-width: 130px; /* Однаковий розмір для обох кнопок */
     text-align: center;
-    
+
 }
 
 
@@ -280,6 +293,7 @@ tbody tr:hover {
     border-color: #144771;
     color: white;
 }
+
 .btn-autopass:hover {
     background-color: #0d2e4a;
     border-color: #0d2e4a;
@@ -292,6 +306,7 @@ tbody tr:hover {
     border-color: #144771;
     color: #144771;
 }
+
 .big-btn-login:hover {
     background-color: #144771;
     border-color: #0d2e4a;
@@ -300,10 +315,10 @@ tbody tr:hover {
 
 
 .btn-view-trips {
-    background-color: dbebfc;
     border-color: #144771;
     color: #144771;
 }
+
 .btn-view-trips:hover {
     background-color: #0d2e4a;
     border-color: #0d2e4a;
@@ -318,16 +333,29 @@ tbody tr:hover {
     color: #0f5132;
 }
 
-#electric:checked + label, 
+#electric:checked + label,
 #hybrid:checked + label {
     background-color: #d1e7dd !important;
     color: #0f5132 !important;
     border-color: #a3cfbb !important;
 }
 
-#gasoline:checked + label, 
+#gasoline:checked + label,
 #diesel:checked + label {
     background-color: #212529 !important;
     color: #ffffff !important;
     border-color: #212529 !important;
+}
+
+.table-container {
+    max-height: 65vh;
+    overflow-y: auto; /* scrollbar */
+}
+
+
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
 }
