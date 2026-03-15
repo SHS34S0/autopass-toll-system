@@ -4,6 +4,8 @@ from werkzeug.security import check_password_hash
 import config
 from datetime import timezone
 from fastapi.responses import RedirectResponse
+import random
+from datetime import datetime, timedelta
 from async_lru import alru_cache
 import logging
 
@@ -15,11 +17,11 @@ async def check_user_id(email: str, password: str, db):
         "SELECT * FROM persons WHERE email = ?", (email.lower().strip(),)
     )
 
-    row = await cursor.fetchall()
+    row = await cursor.fetchone()
     # check if the email exists and if the password is correct
-    if len(row) != 1 or not check_password_hash(row[0][4], password):
+    if not check_password_hash(row[4], password):
         return False
-    user_id: int = int(row[0][0])
+    user_id: int = int(row[0])
     return user_id
 
 
@@ -58,10 +60,6 @@ def get_user_id(request: Request):
 def fuel_type_to_id(fuel_type: str):
     fuel_types = {"gasoline": 1, "diesel": 1, "hybrid": 2, "electric": 3}
     return fuel_types.get(fuel_type)
-
-
-import random
-from datetime import datetime, timedelta
 
 
 def get_random_date_in_past(days=30):
