@@ -33,8 +33,8 @@ async def lifespan(fastapi_app: FastAPI):
     fastapi_app.state.db = await aiosqlite.connect("db/database.db")
 
     if not file_exists:
-        with open("db/schema.sql", "r") as f:
-            with open("db/insert_toll_stations.sql", "r") as s:
+        with open("db/schema.sql", "r", encoding="utf-8") as f:
+            with open("db/insert_toll_stations.sql", "r", encoding="utf-8") as s:
                 schema = f.read()
                 station = s.read()
                 await fastapi_app.state.db.executescript(schema)
@@ -291,8 +291,7 @@ async def process_register(
             ),
         )
         await db.commit()
-    except Exception as e:
-        print(e)
+    except IntegrityError:
         logger.warning(f"User {email} already exists")
         return templates.TemplateResponse(
             request=request,
