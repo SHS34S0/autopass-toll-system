@@ -6,6 +6,7 @@ from fastapi.staticfiles import (
 )  # this is used to serve static files like CSS, js, images, etc
 from fastapi.templating import Jinja2Templates
 import aiosqlite
+from fastapi import Response
 from werkzeug.security import generate_password_hash
 from schemas import CarAddModel, UserRegisterModel, UserLoginModel
 from pydantic import ValidationError
@@ -171,7 +172,8 @@ async def view_trips(
     this_month_cost_1_car = await h.get_cost_this_month(db, car_num_raw)
     if not this_month_cost_1_car[0]:
         return RedirectResponse(url="/dashboard", status_code=303)
-
+    #########################################
+    # all_trips = await h.get_all_passages(db, car_num_raw)
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -182,6 +184,34 @@ async def view_trips(
             "this_month_cost_1_car": this_month_cost_1_car,
             "passages": await h.get_all_passages(db, car_num_raw),
         },
+    )
+
+
+@app.get("/print/{car_num}", tags=["print"])
+async def print_trips(
+        request: Request, car_num: str, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
+):
+    if not user_id:
+        return RedirectResponse(url="/", status_code=303)
+    if not car_num:
+        return RedirectResponse(url="/dashboard", status_code=303)
+    if not await h.get_own_vehicles(db, user_id, car_num.replace("_", " ")) and car_num != "all_trips":
+        return RedirectResponse(url="/dashboard", status_code=303)
+    # conversion is needed to use 2 existing functions rather than writing new ones
+    car_num_raw = ((car_num.replace("_", " "),),)
+    cars_info = await h.get_active_vehicles(db, user_id)
+    # всі авто?
+    all_trips = await h.get_all_passages(db, tuple(cars_info))
+    if car_num != "all_trips":
+        # конкретне
+        all_trips = await h.get_all_passages(db, car_num_raw)
+    pdf_content = bytes(h.create_trips_report(all_trips, "AutoPASS Trips"))
+    return Response(
+        content=pdf_content,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": "attachment; filename=trips_report.pdf"
+        }
     )
 
 

@@ -8,8 +8,46 @@ import random
 from datetime import datetime, timedelta
 from async_lru import alru_cache
 import logging
+from fpdf import FPDF
 
 logger = logging.getLogger(__name__)
+
+
+class PDF(FPDF):
+    def __init__(self, title_text, **kwargs):
+        super().__init__(**kwargs)
+        self.report_title = title_text
+
+    def header(self):
+        self.image("static/Flag.png", 10, 8, 33)
+        self.set_font("helvetica", "B", 15)
+        self.cell(80)
+        self.cell(30, 10, self.report_title, align="C")
+        self.ln(25)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("helvetica", "I", 8)
+        self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", align="C")
+
+
+def create_trips_report(all_trips, header_title):
+    pdf = PDF(title_text=header_title)
+    pdf.add_page()
+    pdf.set_font("Times", size=12)
+
+    # table
+    total_pris = 0
+    for i in all_trips:
+        pdf.cell(47, 10, str(i[0]), border=1, align="C")
+        pdf.cell(47, 10, str(i[1]), border=1, align="C")
+        pdf.cell(47, 10, str(i[2]), border=1, align="C")
+        pdf.cell(47, 10, str(i[3] / 100), border=1, align="C")
+        pdf.ln()
+        total_pris += int(i[3])
+    pdf.set_x(140)
+    pdf.cell(50, 10, f"Total price {str(total_pris / 100)} NOK", align="C")
+    return pdf.output()
 
 
 async def check_user_id(email: str, password: str, db):
@@ -105,7 +143,7 @@ def generate_dynamic_query(car_list):
 async def get_all_passages(db, car_number_raw):
     placeholders, car_number = generate_dynamic_query(car_number_raw)
     cursor = await db.execute(
-        f"SELECT passed_at, station, car_num, final_price_ore FROM all_passages WHERE car_num IN ({placeholders}) ORDER BY passed_at DESC LIMIT 50",
+        f"SELECT passed_at, station, car_num, final_price_ore FROM all_passages WHERE car_num IN ({placeholders}) ORDER BY passed_at DESC",
         car_number,
     )
     return await cursor.fetchall()
