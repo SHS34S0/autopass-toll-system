@@ -359,3 +359,28 @@ thead th {
     background-color: white;
     z-index: 1;
 }
+
+.container-month {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    width: 99.5%;
+    border-radius: 7px;
+    background-color: #F8FAFC;
+    display: flex;
+    overflow: hidden;
+    padding: 0;
+}
+
+.month-block {
+    background-color: #F8FAFC;
+    flex-grow: 1;
+}
+
+.month-line {
+    display: flex;
+    background-color: #dbebfc;
+    width: 100%;
+    justify-content: center;
+    align-items: flex-start;
+}

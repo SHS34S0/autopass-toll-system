@@ -215,6 +215,27 @@ async def print_trips(
     )
 
 
+@app.get("/finances", tags=["finances"])
+async def render_page(request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)):
+    if not user_id:
+        return RedirectResponse(url="/", status_code=303)
+    cars_info = await h.get_active_vehicles(db, user_id)
+    if not cars_info:
+        return RedirectResponse(url="/add_vehicle", status_code=303)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="finances.html",
+        context={
+            "user_id": user_id,
+            "cars_info": cars_info,
+            "active_vehicles": len(cars_info),
+            # need to pass the tuple for the cache to work
+            "this_month_cost": await h.get_cost_this_month(db, tuple(cars_info)),
+        },
+    )
+
+
 @app.get("/", tags=["home"])
 async def render_page(request: Request, user_id: int | None = Depends(h.get_user_id)):
     if user_id:
