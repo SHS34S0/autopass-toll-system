@@ -200,10 +200,9 @@ async def print_trips(
     # conversion is needed to use 2 existing functions rather than writing new ones
     car_num_raw = ((car_num.replace("_", " "),),)
     cars_info = await h.get_active_vehicles(db, user_id)
-    # всі авто?
+    # all cars
     all_trips = await h.get_all_passages(db, tuple(cars_info))
     if car_num != "all_trips":
-        # конкретне
         all_trips = await h.get_all_passages(db, car_num_raw)
     pdf_content = bytes(h.create_trips_report(all_trips, "AutoPASS Trips"))
     return Response(
@@ -222,7 +221,6 @@ async def render_page(request: Request, user_id: int | None = Depends(h.get_user
     cars_info = await h.get_active_vehicles(db, user_id)
     if not cars_info:
         return RedirectResponse(url="/add_vehicle", status_code=303)
-
     return templates.TemplateResponse(
         request=request,
         name="finances.html",
@@ -232,6 +230,7 @@ async def render_page(request: Request, user_id: int | None = Depends(h.get_user
             "active_vehicles": len(cars_info),
             # need to pass the tuple for the cache to work
             "this_month_cost": await h.get_cost_this_month(db, tuple(cars_info)),
+            "all_months_info": await h.all_months_info(db, tuple(cars_info))
         },
     )
 

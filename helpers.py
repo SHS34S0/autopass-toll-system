@@ -178,3 +178,31 @@ async def get_own_vehicles(db, user_id, car_num):
         (user_id, car_num),
     )
     return await cursor.fetchall()
+
+
+async def all_months_info(db, car_number_raw):
+    placeholders, car_number = generate_dynamic_query(car_number_raw)
+    cursor = await db.execute(
+        f"""
+        SELECT passed_at,
+       SUM(final_price_ore)                   AS total_month,
+       SUM(base_price) - SUM(final_price_ore) AS saved,
+       CASE
+           WHEN strftime('%m', passed_at) = '01' THEN 'JANUARY'
+           WHEN strftime('%m', passed_at) = '02' THEN 'FEBRUARY'
+           WHEN strftime('%m', passed_at) = '03' THEN 'MARCH'
+           WHEN strftime('%m', passed_at) = '04' THEN 'APRIL'
+           WHEN strftime('%m', passed_at) = '05' THEN 'MAY'
+           WHEN strftime('%m', passed_at) = '06' THEN 'JUNE'
+           WHEN strftime('%m', passed_at) = '07' THEN 'JULY'
+           WHEN strftime('%m', passed_at) = '08' THEN 'AUGUST'
+           WHEN strftime('%m', passed_at) = '09' THEN 'SEPTEMBER'
+           WHEN strftime('%m', passed_at) = '10' THEN 'OCTOBER'
+           WHEN strftime('%m', passed_at) = '11' THEN 'NOVEMBER'
+           WHEN strftime('%m', passed_at) = '12' THEN 'DECCEMBER'
+           END                                AS month
+        FROM all_passages
+        WHERE car_num IN ({placeholders})
+        GROUP BY strftime('%Y', passed_at), strftime('%m', passed_at) ORDER BY passed_at DESC""", car_number
+    )
+    return await cursor.fetchall()

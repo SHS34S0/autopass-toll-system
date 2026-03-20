@@ -51,36 +51,40 @@
         </div>
 
     </div>
-    <div class="row align-items mt-2">
-        <div class="container-month">
-            <div class="month-block">
-                <div class="month-line">
-                    <p><strong>MARCH 2026</strong></p>
-                </div>
-                <div class="row align-items-center">
-                    <div class="info-block col-3">
-                        <p>DATE</p>
-                        <h2>MAR</h2>
+    <div class="row align-items">
+        {% for month in all_months_info %}
+            <div class="container-month mt-3">
+                <div class="month-block">
+                    <div class="month-line">
+                        <p><strong>{{ month[3] }} {{ month[0][:4] }}</strong></p>
                     </div>
-                    <div class="info-block col-6 d-flex">
-                        <div>
-                            <p>Total due</p>
-                            <h2>1200 NOK</h2>
+                    <div class="row align-items-center">
+                        <div class="info-block col-3">
+                            <p>DATE</p>
+                            <h2>{{ month[3][:3] }} {{ month[0][:4] }}</h2>
                         </div>
-                        <div class="ms-4"><p>Eco-saving Bonus</p>
-                            <h2>Saved: 350 NOK</h2>
+                        <div class="info-block col-2 d-flex">
+                            <div>
+                                <p>Total due</p>
+                                <h2>{{ month[1] / 100 }} NOK</h2>
+                            </div>
                         </div>
-                    </div>
+                        <div class="info-block col-3 d-flex">
+                            <div class="ms-5"><p>Eco-saving Bonus</p>
+                                <h4 class="text-success">Saved: {{ month[2] / 100 }} NOK</h4>
+                            </div>
+                        </div>
 
-                    <div class="info-block col-3">
-                        <a href="/" class="btn btn-view-trips big-btn mb-4">Download Pre-invoice (PDF)</a>
-                    </div>
+                        <div class="info-block col-3">
+                            <a href="/" class="btn btn-view-trips big-btn mb-4">Download Pre-invoice (PDF)</a>
+                        </div>
 
+
+                    </div>
 
                 </div>
-
             </div>
-        </div>
+        {% endfor %}
     </div>
 
 
