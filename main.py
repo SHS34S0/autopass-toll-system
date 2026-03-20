@@ -222,20 +222,23 @@ async def finances_page(request: Request, month: str | None = None, user_id: int
         return RedirectResponse(url="/add_vehicle", status_code=303)
     if month:
         if month.lower() in MonthName.__members__:
-            # return RedirectResponse(url="/finances", status_code=303)
-            all_months = await h.all_months_info(db, tuple(cars_info))
-            one_month = ""
-            for m in all_months:
-                if m[3] == month:
-                    one_month = m
-            pdf_content = bytes(h.rapport_month(one_month, month))
-            return Response(
-                content=pdf_content,
-                media_type="application/pdf",
-                headers={
-                    "Content-Disposition": f"attachment; filename={month.capitalize()}_report.pdf"
-                }
-            )
+            try:
+
+                all_months = await h.all_months_info(db, tuple(cars_info))
+                one_month = ""
+                for m in all_months:
+                    if m[3] == month:
+                        one_month = m
+                pdf_content = bytes(h.rapport_month(one_month, month))
+                return Response(
+                    content=pdf_content,
+                    media_type="application/pdf",
+                    headers={
+                        "Content-Disposition": f"attachment; filename={month.capitalize()}_report.pdf"
+                    }
+                )
+            except IndexError:
+                return RedirectResponse(url="/dashboard", status_code=303)
     return templates.TemplateResponse(
         request=request,
         name="finances.html",

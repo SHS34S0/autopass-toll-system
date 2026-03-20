@@ -66,11 +66,16 @@ async def check_user_id(email: str, password: str, db):
     )
 
     row = await cursor.fetchone()
-    # check if the email exists and if the password is correct
-    if not check_password_hash(row[4], password):
+    try:
+
+        # check if the email exists and if the password is correct
+        if not check_password_hash(row[4], password):
+            return False
+        user_id: int = int(row[0])
+        return user_id
+    except Exception as e:
+        logger.error(e)
         return False
-    user_id: int = int(row[0])
-    return user_id
 
 
 def create_access_token(user_id: int):
@@ -102,7 +107,7 @@ def fuel_type_to_id(fuel_type: str):
     return fuel_types.get(fuel_type)
 
 
-def get_random_date_in_past(days=30):
+def get_random_date_in_past(days=90):
     max_seconds = days * 24 * 60 * 60
     random_seconds = random.randint(0, max_seconds)
     return datetime.now().replace(microsecond=0) - timedelta(seconds=random_seconds)
@@ -110,12 +115,12 @@ def get_random_date_in_past(days=30):
 
 async def generate_fake_passages(db, car_number):
     try:
-        passages = random.randint(5, 20)
+        passages = random.randint(10, 40)
 
         for i in range(passages):
             await db.execute(
                 "INSERT INTO passages (car_num, station_id, passed_at) VALUES (?, ?, ?)",
-                (car_number, random.randint(1, 10), get_random_date_in_past(30)),
+                (car_number, random.randint(1, 10), get_random_date_in_past(90)),
             )
         await db.commit()
 
