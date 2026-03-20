@@ -8,7 +8,8 @@ from fastapi.templating import Jinja2Templates
 import aiosqlite
 from fastapi import Response
 from werkzeug.security import generate_password_hash
-from schemas import CarAddModel, UserRegisterModel, UserLoginModel
+
+from schemas import CarAddModel, UserRegisterModel, UserLoginModel, MonthName
 from pydantic import ValidationError
 from contextlib import asynccontextmanager
 from fastapi.responses import RedirectResponse
@@ -139,8 +140,6 @@ async def dashboard(
     if not cars_info:
         return RedirectResponse(url="/add_vehicle", status_code=303)
 
-    # print(cars_info)
-    # print(await h.get_all_passages(db, cars_info))
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -188,9 +187,8 @@ async def view_trips(
 
 
 @app.get("/print/{car_num}", tags=["print"])
-async def print_trips(
-        request: Request, car_num: str, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
-):
+async def print_trips(car_num: str, user_id: int = Depends(h.get_user_id), db=Depends(get_db)
+                      ):
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
     if not car_num:
@@ -215,12 +213,29 @@ async def print_trips(
 
 
 @app.get("/finances", tags=["finances"])
-async def render_page(request: Request, user_id: int | None = Depends(h.get_user_id), db=Depends(get_db)):
+async def finances_page(request: Request, month: str | None = None, user_id: int | None = Depends(h.get_user_id),
+                        db=Depends(get_db), ):
     if not user_id:
         return RedirectResponse(url="/", status_code=303)
     cars_info = await h.get_active_vehicles(db, user_id)
     if not cars_info:
         return RedirectResponse(url="/add_vehicle", status_code=303)
+    if month:
+        if month.lower() in MonthName.__members__:
+            # return RedirectResponse(url="/finances", status_code=303)
+            all_months = await h.all_months_info(db, tuple(cars_info))
+            one_month = ""
+            for m in all_months:
+                if m[3] == month:
+                    one_month = m
+            pdf_content = bytes(h.rapport_month(one_month, month))
+            return Response(
+                content=pdf_content,
+                media_type="application/pdf",
+                headers={
+                    "Content-Disposition": f"attachment; filename={month.capitalize()}_report.pdf"
+                }
+            )
     return templates.TemplateResponse(
         request=request,
         name="finances.html",

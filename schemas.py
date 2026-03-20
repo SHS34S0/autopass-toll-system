@@ -9,6 +9,23 @@ from pydantic import (
     field_validator,
 )
 
+from enum import Enum
+
+
+class MonthName(str, Enum):
+    january = "JANUARY"
+    february = "FEBRUARY"
+    march = "MARCH"
+    april = "APRIL"
+    may = "MAY"
+    june = "JUNE"
+    july = "JULY"
+    august = "AUGUST"
+    september = "SEPTEMBER"
+    october = "OCTOBER"
+    november = "NOVEMBER"
+    december = "DECEMBER"
+
 
 class UserRegisterModel(BaseModel):
     first_name: str

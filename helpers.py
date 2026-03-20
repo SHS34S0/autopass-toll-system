@@ -19,7 +19,7 @@ class PDF(FPDF):
         self.report_title = title_text
 
     def header(self):
-        self.image("static/Flag.png", 10, 8, 33)
+        self.image("static/free-icon-a.png", 10, 5, 25)
         self.set_font("helvetica", "B", 15)
         self.cell(80)
         self.cell(30, 10, self.report_title, align="C")
@@ -37,16 +37,26 @@ def create_trips_report(all_trips, header_title):
     pdf.set_font("Times", size=12)
 
     # table
-    total_pris = 0
     for i in all_trips:
         pdf.cell(47, 10, str(i[0]), border=1, align="C")
         pdf.cell(47, 10, str(i[1]), border=1, align="C")
         pdf.cell(47, 10, str(i[2]), border=1, align="C")
         pdf.cell(47, 10, str(i[3] / 100), border=1, align="C")
         pdf.ln()
-        total_pris += int(i[3])
     pdf.set_x(140)
-    pdf.cell(50, 10, f"Total price {str(total_pris / 100)} NOK", align="C")
+    return pdf.output()
+
+
+def rapport_month(tuple_text, header_title):
+    pdf = PDF(title_text=header_title)
+    pdf.add_page()
+    pdf.set_font("Times", size=12)
+
+    pdf.cell(200, 10, f"Total amount for {tuple_text[3]} {str(tuple_text[1] / 100)} NOK", align="C")
+    pdf.ln(8)
+    pdf.set_font("helvetica", "I", 11)
+    pdf.cell(200, 10, f"Eco-saving bonus: {str(tuple_text[2] / 100)} NOK", align="C")
+    pdf.set_text_color(0, 0, 0)
     return pdf.output()
 
 
@@ -199,7 +209,7 @@ async def all_months_info(db, car_number_raw):
            WHEN strftime('%m', passed_at) = '09' THEN 'SEPTEMBER'
            WHEN strftime('%m', passed_at) = '10' THEN 'OCTOBER'
            WHEN strftime('%m', passed_at) = '11' THEN 'NOVEMBER'
-           WHEN strftime('%m', passed_at) = '12' THEN 'DECCEMBER'
+           WHEN strftime('%m', passed_at) = '12' THEN 'DECEMBER'
            END                                AS month
         FROM all_passages
         WHERE car_num IN ({placeholders})
