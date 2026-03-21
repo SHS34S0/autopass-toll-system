@@ -1,32 +1,68 @@
 # AutoPASS Toll Management System
 
-A full-stack web application that simulates a modern toll road management system (bompengeselskap). The platform provides secure user registration, vehicle management, and dynamic toll pricing calculations based on real-world variables like rush-hour traffic and vehicle fuel types.
+A full-stack web application simulating a modern Norwegian toll road system (bompengeselskap). Built with a focus on
+backend architecture, database-driven business logic, and security.
 
-## 🚀 Features (In Progress)
+## ✅ Features
 
-* **Secure Authentication:** User registration and login with encrypted password hashing (`bcrypt`).
-* **Dynamic Pricing Engine:** Advanced database logic calculates toll fees dynamically, applying discounts for EVs/Hybrids and surcharges during peak traffic hours (07:00-08:30, 15:30-17:00).
-* **Passage Tracking:** Records vehicle passages at various toll stations and links them to registered users.
-* **Responsive UI:** Clean, responsive web interface built with Bootstrap and Jinja2 templates.
+- **Secure Authentication** — Registration and login with bcrypt password hashing, JWT tokens stored in HTTP-only
+  cookies (XSS protection)
+- **Dynamic Pricing Engine** — Rush-hour surcharges (×1.2 at 07:00–08:30 and 15:30–17:00) and fuel-type discounts
+  calculated entirely in a SQL VIEW
+- **Vehicle Management** — Register vehicles with AutoPASS agreements; IDOR protection prevents users from accessing
+  other users' data via URL manipulation
+- **Passage Tracking** — Full transaction log with per-vehicle and per-month filtering
+- **Finances Page** — Monthly cost aggregation with eco-saving bonus calculation, powered by SQL `GROUP BY`
+- **PDF Export** — Download trip reports and monthly pre-invoices generated in-memory (no server-side file storage)
+- **Async Caching** — `async_lru` caching on heavy database queries with cache invalidation on write operations
+- **Structured Logging** — Warning/error logging to file with no sensitive data exposure
 
 ## 🛠️ Tech Stack
 
-* **Backend:** Python, FastAPI
-* **Database:** SQLite3 (Asynchronous operations via `aiosqlite`)
-* **Frontend:** HTML5, CSS3, Bootstrap, Jinja2
-* **Security:** `werkzeug.security` (Password hashing)
+| Layer      | Technology                                                 |
+|------------|------------------------------------------------------------|
+| Backend    | Python 3.11+, FastAPI                                      |
+| Database   | SQLite3 via `aiosqlite` (async)                            |
+| Validation | Pydantic v2 (`field_validator`, `model_validator`, `Enum`) |
+| Frontend   | Jinja2, HTML5, CSS3, Bootstrap 5, JavaScript               |
+| Auth       | JWT (`PyJWT`), bcrypt (`werkzeug.security`)                |
+| PDF        | `fpdf2`                                                    |
+| Caching    | `async-lru`                                                |
 
 ## 🗄️ Database Architecture
 
-A core component of this project is its robust SQLite architecture, which offloads complex business logic to the database layer:
-* **Views (`all_passages`):** Handles complex conditional math for base prices, time multipliers, and fuel discounts on the fly.
-* **Triggers:** Automates the registration of unknown vehicles passing through toll stations.
-* **Constraints & Validation:** Ensures data integrity for phone numbers, fuel types, and foreign key relationships.
+Business logic is offloaded to the database layer:
 
-## ⚙️ Local Setup & Installation
+- **`GENERATED ALWAYS AS` columns** — Discount percentages computed and stored automatically based on fuel type
+- **VIEW (`all_passages`)** — Calculates final toll price using `strftime`-based rush-hour logic
+  (×1.2 surcharge at 07:00–08:30 and 15:30–17:00) combined with per-vehicle fuel discounts.
+  No Python involved — pure SQL math.
+- **Computed columns** (`GENERATED ALWAYS AS STORED`) — Discount percentages calculated and
+  stored at the database level, not in application code.
+- **Trigger (`register_unknown_car`)** — Automatically registers unknown vehicles on first passage, preventing crashes
+- **Indexes** — On `passed_at` and `station_id` for query performance
+- **Prices stored as integers (øre)** — Avoids floating-point rounding errors; standard practice in financial systems
 
-1. Clone the repository:
+## ⚙️ Local Setup
+
 ```bash
 git clone https://github.com/SHS34S0/autopass-toll-system.git
-   cd autopass-toll-system 
+cd autopass-toll-system
+
+pip install -r requirements.txt
+
+cp config.py.example config.py
+# Edit config.py and set your SECRET_KEY
+
+fastapi dev main.py
 ```
+
+The database is created automatically on first run from `db/schema.sql`.
+
+## 🔐 Security Notes
+
+- Passwords are never stored in plaintext — bcrypt hashing with unique salts
+- JWT stored in HTTP-only cookie, not accessible via JavaScript
+- All database queries use parameterized placeholders — no string concatenation
+- IDOR protection on `/dashboard/{car_num}` — ownership verified before data is returned
+- Email uniqueness enforced at the database constraint level (`IntegrityError` handling, EAFP pattern)
