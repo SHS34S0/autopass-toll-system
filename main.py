@@ -126,6 +126,7 @@ async def process_add_car(
     h.get_cost_this_month.cache_clear()
     h.get_all_passages.cache_clear()
     h.get_active_vehicles.cache_clear()
+    h.all_months_info.cache_clear()
 
     return RedirectResponse(url="/dashboard", status_code=303)
 

@@ -195,6 +195,7 @@ async def get_own_vehicles(db, user_id, car_num):
     return await cursor.fetchall()
 
 
+@alru_cache(maxsize=1000)
 async def all_months_info(db, car_number_raw):
     placeholders, car_number = generate_dynamic_query(car_number_raw)
     cursor = await db.execute(
